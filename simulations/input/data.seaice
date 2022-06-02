@@ -1,0 +1,55 @@
+# SEAICE parameters
+ &SEAICE_PARM01
+#SEAICErestoreUnderIce=.TRUE.,
+ usePW79thermodynamics=.FALSE.,
+#SEAICE_waterTurnAngle= 25.,
+#- Martin's recommendation:
+ SEAICE_deltaMin = 2.e-9,
+ SEAICEetaZmethod = 3,
+#- for EVP (from Martin's recommendation):
+ SEAICE_deltaTevp   = 30.,
+#SEAICE_evpAlpha = 500.,    # uncomment these two and comment out SEAICEaEVPcoeff for mEVP
+#SEAICE_evpBeta  = 500.,
+#- for self-adjustable "aEVP"
+# SEAICEaEVPalphaMin = 50, # not sure if this is better than the smaller default value
+  SEAICEaEVPcoeff = 0.5,
+# following 3: EVP* and EVP revisited ;
+# SEAICEnEVPstarSteps = 500,
+# these two should be default, once we are completely happy
+  SEAICEuseEVPstar = .TRUE.,
+  SEAICEuseEVPrev = .TRUE.,
+#- for LSR:
+# #LSR_ERROR       = 1.E-12,
+# #LSR_ERROR       = 2.E-9,
+# #SOLV_MAX_ITERS = 500, <-- old setting of following line:
+#  SEAICElinearIterMax=500,
+#  SEAICE_OLx = 1,
+#  SEAICE_OLy = 1,
+#  SEAICE_EPS = 2.e-9,
+# #SEAICEuseStrImpCpl=.TRUE.,
+# #LSR_mixIniGuess = 2,
+# #SEAICEuseMultiTileSolver=.TRUE.,
+#--
+#NPSEUDOTIMESTEPS = 10, <-- old setting of following line:
+#SEAICEnonLinIterMax=10,
+#---
+#  SEAICEuseJFNK       = .TRUE.,
+#  SOLV_MAX_ITERS      = 10,
+#  SEAICEnewtonIterMax = 200,
+#  SEAICEkrylovIterMax = 50,
+#  JFNKgamma_nonlin    = 1. _d -05    # default
+#  JFNKgamma_lin_min   = 0.10 _d 0   # default
+#  JFNKgamma_lin_max   = 0.99 _d 0   # default
+#  JFNKres_tFac        = 0.5
+#  SEAICE_JFNKepsilon  = 1. _d -06 # default
+#  SEAICE_JFNKalpha    = 1.5, # a bit more agressive than the default
+#---
+ SEAICE_no_Slip     = .FALSE.,
+#SEAICEwriteState   = .TRUE.,
+#SEAICE_clipVelocities = .TRUE.,
+ SEAICE_monFreq = 2592000.,
+ &
+
+ &SEAICE_PARM03
+ &
+

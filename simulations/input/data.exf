@@ -1,0 +1,98 @@
+#
+# *********************
+# External Forcing Data
+# *********************
+ &EXF_NML_01
+ ocean_emissivity  = 1.,
+ atmrho            = 1.22,
+ humid_fac         = .608,
+# temperature and humidity are at 10 m, not 2 m.
+ ht                = 10.,
+ exf_albedo        = 0.066,
+ useRelativeWind = .TRUE.,
+ repeatPeriod      = 31104000.,
+ exf_iprec         = 32,
+ exf_monFreq       = 2592000.,
+#useExfCheckRange  = .TRUE.,
+ &
+
+# *********************
+ &EXF_NML_02
+#
+ atempstartdate1   = 00010115,
+#atempstartdate2   = 180000,
+ atempperiod       = 2592000.0,
+#
+ aqhstartdate1     = 00010115,
+#aqhstartdate2     = 180000,
+ aqhperiod         = 2592000.0,
+#
+ precipstartdate1  = 00010115,
+#precipstartdate2  = 180000,
+ precipperiod      = 2592000.0,
+#
+ snowprecipstartdate1= 00010115,
+#snowprecipstartdate2= 180000,
+ snowprecipperiod    = 2592000.,
+#
+# runoffstartdate1  = 00010115,
+#runoffstartdate2  = 180000,
+# runoffperiod      = 2592000.0,
+#
+ uwindstartdate1   = 00010115,
+#uwindstartdate2   = 180000,
+ uwindperiod       = 2592000.0,
+#uwindperiod       = 0.,
+#
+ vwindstartdate1   = 00010115,
+#vwindstartdate2   = 180000,
+ vwindperiod       = 2592000.0,
+#vwindperiod       = 0.,
+#
+# wspeedstartdate1  = 00010115,
+#wspeedstartdate2  = 180000,
+# wspeedperiod      = 2592000.0,
+#
+ swdownstartdate1  = 00010115,
+#swdownstartdate2  = 180000,
+ swdownperiod      = 2592000.0,
+#
+ lwdownstartdate1  = 00010115,
+#lwdownstartdate2  = 180000,
+ lwdownperiod      = 2592000.0,
+#
+#climsssstartdate1  = 00010115,
+#climsssstartdate2  = 180000,
+#climsssperiod      = 2592000.0,
+#
+#climsststartdate1  = 00010115,
+#climsststartdate2  = 180000,
+#climsstperiod      = 2592000.0,
+#
+ atempfile         = 'atemp_JRA55do_EXF.bin',
+ aqhfile           = 'aqh_JRA55do_EXF.bin',
+ uwindfile         = 'uwind_JRA55do_EXF.bin',
+ vwindfile         = 'vwind_JRA55do_EXF.bin',
+ precipfile        = 'precip_rain_JRA55do_EXF.bin',
+ snowprecipfile    = 'precip_snow_JRA55do_EXF.bin',
+ lwdownfile        = 'lwdown_JRA55do_EXF.bin',
+ swdownfile        = 'swdown_JRA55do_EXF.bin',
+#runoffFile        = 'core_rnof_1_cs32.bin'
+#
+ &
+
+# *********************
+ &EXF_NML_03
+#exf_offset_atemp=5;
+ &
+
+# *********************
+# old open64 compiler (4.2.1) cannot skip this namelist to read in the next one;
+# comment out this namelist (not read).
+#&EXF_NML_04
+#&
+
+# *********************
+ &EXF_NML_OBCS
+ &
+

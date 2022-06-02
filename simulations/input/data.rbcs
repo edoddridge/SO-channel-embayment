@@ -1,0 +1,15 @@
+# RBCS package parameters:
+ &RBCS_PARM01
+ useRBCtemp=.TRUE.,
+ useRBCsalt=.TRUE.,
+ tauRelaxT=864000.,
+ tauRelaxS=864000.,
+ relaxMaskFile(1:2)='mask_RBCS.bin', 'mask_RBCS.bin',
+ relaxTFile='WOA_temperature_IC.bin',
+ relaxSFile='WOA_salt_IC.bin',
+#---------------------------------------
+ &
+
+# RBCS for pTracers (read this namelist only when ptracers pkg is compiled)
+ &RBCS_PARM02
+ &
