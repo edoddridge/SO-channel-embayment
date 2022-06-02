@@ -1,0 +1,8 @@
+Notes on configuration
+
+EOS = MJDWF 
+
+Uses LeithQG viscosity
+Uses Prather SOM advection
+Uses layers for layerwise diagnostics
+
