@@ -1,4 +1,5 @@
 Notes on configuration
+----------------------
 
 EOS = MJDWF 
 
@@ -6,3 +7,11 @@ Uses LeithQG viscosity
 Uses Prather SOM advection
 Uses layers for layerwise diagnostics
 
+
+
+Notes on simulation
+-------------------
+
+After approximately 8 years of model time (possibly only effective after the 10 year restart), changed surface forcing to be 5 degrees further south. Domain goes from 75S to 45S.
+
+This will cause a jump in the time series, but, the model is nowhere near equilibrated, and there's no reason to throw out those years of simulation, since the output will be closer to the final equilibrium than the initial conditions.
