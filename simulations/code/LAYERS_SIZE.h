@@ -12,7 +12,7 @@ C      FineGridMax    :: the number of points in the finer vertical grid
 C                        used for interpolation
 C      layers_maxNum  :: max number of tracer fields used for layer averaging
       INTEGER    Nlayers, FineGridFact, FineGridMax, layers_maxNum
-      PARAMETER( Nlayers = 50 )
+      PARAMETER( Nlayers = 37 )
       PARAMETER( FineGridFact = 10 )
       PARAMETER( FineGridMax = Nr * FineGridFact )
-      PARAMETER( layers_maxNum = 3 )
+      PARAMETER( layers_maxNum = 1 )

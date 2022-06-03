@@ -20,7 +20,7 @@ C Do water mass thermodynamics?
 C Use refined grid for diapycnal terms? (gives worse results)
 #undef LAYERS_FINEGRID_DIAPYCNAL
 C Calculate tracer fluxes in layers
-#define LAYERS_TRACER_FLUX
+#define LAYERS_TRACERFLUX
 
 C The MNC stuff is too complicated
 #undef LAYERS_MNC
