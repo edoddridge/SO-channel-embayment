@@ -21,7 +21,9 @@
  &
 
  &THSICE_PARM01
- StartIceModel=1,
+# if starting with no ice, set this to 1
+# otherwise, if starting from a pickup with ice, set to 0
+ StartIceModel=0,
 #thSIce_skipThermo=.TRUE.,
  thSIceAdvScheme=77,
 #thSIce_diffK   =800.,
