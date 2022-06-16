@@ -383,6 +383,7 @@ C     tracer :: potential temperature, salt or potential density prho
 C      UHTRACER   :: zonal flux integrated over layer (TRACER m^3/s)
 C      VHTRACER   :: zonal integrated over layer (TRACER m^3/s)
 C      iLa  :: layer coordinate index
+C     Trac_id :: which tracer is is it? (1=theta, 2 = salt)
       INTEGER myThid
       _RL uFlux   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,2, nSx,nSy)
       _RL vFlux   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,2, nSx,nSy)
