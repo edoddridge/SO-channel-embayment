@@ -5,7 +5,7 @@
  useThSIce = .TRUE.,
  useKPP  = .TRUE.,
  useRBCS   = .TRUE.,
- useLayers = .TRUE.,
+ useLayers = .FALSE.,
  useDiagnostics=.TRUE.,
  useCAL=.TRUE.,
 #---------------------------------------

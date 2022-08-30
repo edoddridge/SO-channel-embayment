@@ -58,7 +58,7 @@
 # Time stepping parameters
  &PARM03
  dumpInitAndLast=.TRUE.,
- nIter0=7962624,
+ nIter0=3732480,
  nTimeSteps=1244160,
  deltaT=500.0,
  pChkptFreq=31104000.0,
@@ -79,7 +79,7 @@
  &PARM04
  usingCartesianGrid=.TRUE.,
  delX=200*10.E3,
- delY=300*10.E3,
+ delY=360*10.E3,
 # from Stewart et al. (2017) algorithm.
  delR=  4.86029965,   5.48716549,   6.19462098,   6.99291201,
          7.89353689,   8.90937723,  10.05483267,  11.34595414,

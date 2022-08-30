@@ -42,19 +42,19 @@
  filename(3) = 'heat_3D',
 
 # Residual mean flow - Layers Package
- fields(1:10,4)  = 'LaVH3RHO','LaTr3RHO',
-                   'LaVa3RHO','LaHs3RHO',
-#		   'LVHS3RHO','LUHS3RHO',
-                   'VTHMASS ','VSLTMASS','VRHOMASS',
-                   'WTHMASS ','WSLTMASS','WRHOMASS',
- frequency(4) = 31104000.,
- fileName(4) = 'layDiag',
+# fields(1:10,4)  = 'LaVH3RHO','LaTr3RHO',
+#                   'LaVa3RHO','LaHs3RHO',
+##		   'LVHS3RHO','LUHS3RHO',
+#                   'VTHMASS ','VSLTMASS','VRHOMASS',
+#                   'WTHMASS ','WSLTMASS','WRHOMASS',
+# frequency(4) = 31104000.,
+# fileName(4) = 'layDiag',
 
 # KPP diagnostics
- fields(1:6,5) = 'KPPviscA', 'KPPdiffS', 'KPPdiffT',
-                 'KPPghatK', 'KPPhbl  ', 'KPPfrac ',
- frequency(5) = 432000.,
- filename(5) = 'KPP_diags',
+# fields(1:6,5) = 'KPPviscA', 'KPPdiffS', 'KPPdiffT',
+#                 'KPPghatK', 'KPPhbl  ', 'KPPfrac ',
+# frequency(5) = 432000.,
+# filename(5) = 'KPP_diags',
 
 # Momentum diagnostics
  fields(1:1,6) = 'VAHDLTH',
@@ -75,10 +75,10 @@
   frequency(7) = 432000.,
 
 # EXF diagnostics
-  fields(1:6,8)  = 'EXFtaux ','EXFtauy ','EXFuwind',
-                   'EXFvwind','EXFswdn ','EXFlwdn ',
-  fileName(8) = 'EXF_diags',
-  frequency(8) = 432000.,
+#  fields(1:6,8)  = 'EXFtaux ','EXFtauy ','EXFuwind',
+#                   'EXFvwind','EXFswdn ','EXFlwdn ',
+#  fileName(8) = 'EXF_diags',
+#  frequency(8) = 432000.,
 
 #---------------------------------------
 #- Eddy-permitting run, diagnose vorticity (not computed when using uniform Ah)
