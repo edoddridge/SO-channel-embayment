@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#PBS -l ncpus=96
+#PBS -l ncpus=144
 #PBS -l mem=190GB
 #PBS -l jobfs=200GB
 #PBS -q normal
@@ -15,4 +15,4 @@ module load intel-mpi
 
 ln -s ../input/* .
 
-mpirun -n 96 ./mitgcmuv
+mpirun -n 144 ./mitgcmuv
