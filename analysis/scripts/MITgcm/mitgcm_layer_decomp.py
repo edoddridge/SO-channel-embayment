@@ -43,22 +43,22 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     iters = iters[-720:]
 
     # load model data
-    ds_2d = xmitgcm.open_mdsdataset(data_dir=os.path.join(model_dir, '/Diags'), grid_dir=model_dir,
+    ds_2d = xmitgcm.open_mdsdataset(data_dir=os.path.join(model_dir, 'Diags'), grid_dir=model_dir,
                                 prefix=['2D_diags'], delta_t=500, calendar='360_day',
                                 ref_date='2000-1-1 0:0:0', geometry='Cartesian',
                                iters=iters)
 
-    ds_seaice = xmitgcm.open_mdsdataset(data_dir=os.path.join(model_dir, '/Diags'), grid_dir=model_dir,
+    ds_seaice = xmitgcm.open_mdsdataset(data_dir=os.path.join(model_dir, 'Diags'), grid_dir=model_dir,
                                     prefix=['seaIceDiag'], delta_t=500, calendar='360_day',
                                     ref_date='2000-1-1 0:0:0', geometry='Cartesian',
                                iters=iters)
 
-    ds_heat = xmitgcm.open_mdsdataset(data_dir=os.path.join(model_dir, '/Diags'), grid_dir=model_dir,
+    ds_heat = xmitgcm.open_mdsdataset(data_dir=os.path.join(model_dir, 'Diags'), grid_dir=model_dir,
                                       prefix=['heat_3D'], delta_t=500, calendar='360_day',
                                       ref_date='2000-1-1 0:0:0', geometry='Cartesian',
                                iters=iters)
 
-    ds_state = xmitgcm.open_mdsdataset(data_dir=os.path.join(model_dir, '/Diags'), grid_dir=model_dir,
+    ds_state = xmitgcm.open_mdsdataset(data_dir=os.path.join(model_dir, 'Diags'), grid_dir=model_dir,
                                    prefix=['state'], delta_t=500, calendar='360_day',
                                    ref_date='2000-1-1 0:0:0', geometry='Cartesian',
                                iters=iters)
