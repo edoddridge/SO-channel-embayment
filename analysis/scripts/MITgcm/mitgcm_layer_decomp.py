@@ -344,7 +344,8 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
 if __name__ == '__main__':
 
     # Start a dask cluster with multiple cores
-    climtas.nci.GadiClient()
+    client = climtas.nci.GadiClient()
+    print(client)
 
     # This script calculates binned quantities for a single year.
         #### get year argument that was passed to python script ####
