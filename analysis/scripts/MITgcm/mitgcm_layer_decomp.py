@@ -337,9 +337,9 @@ if __name__ == '__main__':
     # This script calculates binned quantities for a single year.
         #### get year argument that was passed to python script ####
 
-    import sys
+    # import sys
 
-    year = str(sys.argv[1])
+    # year = str(sys.argv[1])
 
     iters = np.fromfile('/g/data/jk72/ed7737/SO-channel_embayment/simulations/iters.txt', dtype=int, sep=',')
     iters = iters.tolist()
