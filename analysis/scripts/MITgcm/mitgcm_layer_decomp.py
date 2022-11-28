@@ -43,6 +43,8 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     # to use only the last 10 years
     iters = iters[-720:]
 
+    print('Loading model data')
+
     # load model data
     ds_2d = xmitgcm.open_mdsdataset(data_dir=os.path.join(model_dir, 'Diags'), grid_dir=model_dir,
                                 prefix=['2D_diags'], delta_t=500, calendar='360_day',
@@ -97,6 +99,8 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     # calc potential density
     # Should possibly be sigma1, since the dynamics of interest happen at about that depth.
 
+    print('Calculating density')
+
     sigma2 = gsw.density.sigma2(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
                             ds_state['THETA'].where(mask_TP))
     sigma2.name = 'sigma2'
@@ -122,7 +126,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     heat_content = grid.interp(ds_state['THETA']*ds_state['drF']*ds_state['hFacC'], 'Y', boundary='extend')
     vertical_coordinate = xr.ones_like(ds_state['VVEL'])*ds_state['drF']
 
-    #
+    print('Calculating layerwise volume flux')
     layerwise_merid_vol_flux = histogram(sigma2_yp1,
                               bins=[sigma2_layer_bounds],
                               dim = ['Z'],
@@ -240,6 +244,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     # volume transport
     vh_prime = (layerwise_merid_vol_flux.sel(time=slice(time_range[0], time_range[1])) - psi)
 
+    print('Calculating layerwise temperature')
     # Temperature
     # Need to use the linear transformation from xgcm for temperature, since it is not an
     # extensive property. Using xhistogram results in some weird values.
@@ -276,6 +281,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
         plt.colorbar()
         plt.savefig(os.path.join(output_dir, 'layerwise_Tbar_depth_space.png'), dpi=200, bbox_inches='tight')
 
+    print('Calculating layerwise heat transport')
     # heat transport
     vhc_reconstructed = layerwise_merid_vol_flux*layerwise_temperature
     vhc_reconstructed_bar = vhc_reconstructed.mean(dim='time').compute()
@@ -313,6 +319,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     vhc_bar = layerwise_heat_advection.sel(time=slice(time_range[0],
                                                   time_range[1])).mean(dim='time').compute()
 
+    print('Saving fields to NetCDF files')
     # save fields to NetCDF files
     layerwise_merid_vol_flux.to_netcdf(os.path.join(model_dir, output_dir, 'layerwise_merid_vol_flux.nc'),
                 encoding={'layerwise_merid_vol_flux': {'shuffle': True, 'zlib': True, 'complevel': 5}})
