@@ -58,7 +58,7 @@
 # Time stepping parameters
  &PARM03
  dumpInitAndLast=.TRUE.,
- nIter0=3732480,
+ nIter0=6220800,
  nTimeSteps=1244160,
  deltaT=500.0,
  pChkptFreq=31104000.0,
