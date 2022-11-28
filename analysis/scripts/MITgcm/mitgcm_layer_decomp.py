@@ -123,16 +123,18 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     vertical_coordinate = xr.ones_like(ds_state['VVEL'])*ds_state['drF']
 
     #
-    layerwise_merid_vol_flux = histogram(sigma2,
+    layerwise_merid_vol_flux = histogram(sigma2_yp1,
                               bins=[sigma2_layer_bounds],
                               dim = ['Z'],
                               weights=meridional_volume_flux).rename({'sigma2_bin':'sigma2'})
+
+    layerwise_merid_vol_flux.load()
 
     psi = layerwise_merid_vol_flux.mean(dim='time').compute().rename('psi')
 
     # This is the traditional way of computing the Eulerian-mean overturning
     # Can also be done by computing the layerwise velocity and then averaging.
-    psi_bar = histogram(sigma2_bar,
+    psi_bar = histogram(sigma2_yp1_bar,
                           bins=[sigma2_layer_bounds],
                           dim = ['Z'],
                           weights=vbar*ds_state['drF']*ds_state['dxG']*
@@ -142,7 +144,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     psi_star = psi - psi_bar
 
     # Eulerian-mean layer thickness.
-    hbar = histogram(sigma2_bar,
+    hbar = histogram(sigma2_yp1_bar,
                           bins=[sigma2_layer_bounds],
                           dim = ['Z'],
                           weights=xr.ones_like(vbar)*ds_state['drF']).rename({'sigma2_bin':'sigma2'}).rename('hbar')
@@ -189,7 +191,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
 
 
     # Zonal-mean and zonal perturbation streamfunctions
-    psi_zm = xr.ones_like(psi_bar)*histogram(sigma2_bar.mean(dim='XC'),
+    psi_zm = xr.ones_like(psi_bar)*histogram(sigma2_yp1_bar.mean(dim='XC'),
                                           bins=[sigma2_layer_bounds],
                                           dim = ['Z'],
                                           weights=(vbar*ds_state['drF']*ds_state['dxG']
@@ -246,7 +248,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
                                               'Z',
                                               sigma2_layer_midpoints,
                                               method='linear',
-                                              target_data=sigma2,
+                                              target_data=sigma2_yp1,
                                            mask_edges=False)
 
     Tbar = ds_state['THETA'].mean(dim='time').load()
@@ -302,7 +304,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
 
     # using model output heat advection to test
     # (only works if the reference temperature is set to 0°C)
-    layerwise_heat_advection = histogram(sigma2,
+    layerwise_heat_advection = histogram(sigma2_yp1,
                           bins=[sigma2_layer_bounds],
                           dim = ['Z'],
                           weights=ds_heat['ADVy_TH']).rename({'sigma2_bin':'sigma2'})
