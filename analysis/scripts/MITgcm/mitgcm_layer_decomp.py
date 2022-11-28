@@ -88,10 +88,11 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     mask_VP = xr.where(ds_state['hFacS']>0, 1, 0)
 
     # For TEOS-80 models, McDougall et al. (2021) recommends scaling model salinity by
-    # ups to convert it to preformed salinity. And then use model variables as inputs to
+    # ups to convert it to preformed salinity. And then just use model variables as inputs to
     # the gsw calculations.
 
     # calc potential density
+    # Should possibly be sigma1, since the dynamics of interest happen at about that depth.
     sigma2 = gsw.density.sigma2(ds_state['SALT'].where(mask_TP)*gsw.gibbs.constants.uPS,
                             ds_state['THETA'].where(mask_TP))
     sigma2.name = 'sigma2'
