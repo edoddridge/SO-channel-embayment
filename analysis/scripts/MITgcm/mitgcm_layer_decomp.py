@@ -13,6 +13,7 @@ import pandas as pd
 from xhistogram.xarray import histogram
 import os
 import gsw
+import matplotlib.pyplot as plt
 
 import climtas.nci
 
