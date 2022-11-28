@@ -204,7 +204,7 @@ if __name__ == '__main__':
     import sys
 
     year = str(sys.argv[1])
-    month = 6
+    month = 10
 
     # for run_count in range(1,13):
     bin_fields(month, year)
