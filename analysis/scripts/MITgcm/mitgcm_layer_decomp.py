@@ -34,7 +34,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
 
 
     # make sure the output_dir exists
-    os.makedirs(os.path.jopin(model_dir, output_dir), exist_ok=True)
+    os.makedirs(os.path.join(model_dir, output_dir), exist_ok=True)
 
     # load desired iterations from iters.txt file
     iters = np.fromfile(os.path.join(model_dir, 'iters.txt'), dtype=int, sep=',')
