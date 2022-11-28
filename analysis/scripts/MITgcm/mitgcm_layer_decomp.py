@@ -26,7 +26,7 @@ def cumsum_from_bottom (transposrts, dim='sigma2'):
     return cumsum
 
 def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/run/',
-                output_dir='sigma_space_output/'
+                output_dir='sigma_space_output/',
                 Tref=0):
     """
     Convert z-coordinate fields to isopycnal coordinate.
@@ -185,7 +185,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
 
     # Zonal-mean and zonal perturbation streamfunctions
     psi_zm = xr.ones_like(psi_bar)*histogram(sigma2_bar.mean(dim='XC'),
-                                          bins=[sigma2_layer_bounds],psi_zm
+                                          bins=[sigma2_layer_bounds],
                                           dim = ['Z'],
                                           weights=(vbar*ds_state['drF']*ds_state['dxG']
                                                    *ds_state['hFacS']).mean(dim='XC')).rename(
@@ -333,6 +333,8 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     vhc_bar.to_netcdf(os.path.join(model_dir, output_dir, 'vhc_bar.nc'),
                 encoding={'vhc_bar': {'shuffle': True, 'zlib': True, 'complevel': 5}})
 
+    return
+
 
 if __name__ == '__main__':
 
@@ -347,7 +349,6 @@ if __name__ == '__main__':
     # year = str(sys.argv[1])
 
     bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/run/',
-                output_dir='sigma_space_output/'
+                output_dir='sigma_space_output/',
                 Tref=-2)
 
-    return
