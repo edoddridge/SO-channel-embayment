@@ -25,8 +25,7 @@ def cumsum_from_bottom (transposrts, dim='sigma2'):
     cumsum= (transposrts.cumsum(dim)-transposrts.sum(dim))
     return cumsum
 
-def bin_fields(iters=None,
-                model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/run/',
+def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/run/',
                 output_dir='sigma_space_output/'
                 Tref=0):
     """
@@ -36,6 +35,12 @@ def bin_fields(iters=None,
 
     # make sure the output_dir exists
     os.makedirs(os.path.jopin(model_dir, output_dir), exist_ok=True)
+
+    # load desired iterations from iters.txt file
+    iters = np.fromfile(os.path.join(model_dir, 'iters.txt'), dtype=int, sep=',')
+    iters = iters.tolist()
+    # to use only the last 10 years
+    iters = iters[-720:]
 
     # load model data
     ds_2d = xmitgcm.open_mdsdataset(data_dir=os.path.join(model_dir, '/Diags'), grid_dir=model_dir,
@@ -341,13 +346,7 @@ if __name__ == '__main__':
 
     # year = str(sys.argv[1])
 
-    iters = np.fromfile('/g/data/jk72/ed7737/SO-channel_embayment/simulations/iters.txt', dtype=int, sep=',')
-    iters = iters.tolist()
-    # to use only the last 10 years
-    iters = iters[-720:]
-
-    bin_fields(iters=iters,
-                model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/run/',
+    bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/run/',
                 output_dir='sigma_space_output/'
                 Tref=-2)
 
