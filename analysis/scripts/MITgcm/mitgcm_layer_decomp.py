@@ -27,7 +27,8 @@ def cumsum_from_bottom (transposrts, dim='sigma2'):
 
 def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/run/',
                 output_dir='sigma_space_output/',
-                Tref=0):
+                Tref=0,
+                plotting=False):
     """
     Convert z-coordinate fields to isopycnal coordinate.
     """
@@ -149,7 +150,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     X_layered_plotting = np.tile(ds_state['YG'], (len(sigma2_layer_bounds)-1,1)).T
     Y_layered_plotting = -hbar.mean(dim=['XC']).cumsum(dim='sigma2').compute()
 
-    if plotting:
+    if plotting is True:
         # isopycnal space
         fig, ax = plt.subplots(1,3, figsize=(15,4))
         levels=np.linspace(-3,3,30,)*1e6
@@ -198,7 +199,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     psi_zp = psi_bar - psi_zm
 
 
-    if plotting:
+    if plotting is True:
         # isopycnal space
         fig, ax = plt.subplots(1,3, figsize=(15,4))
         cumsum_from_bottom(psi_bar.sum(dim='XC')).plot(ax=ax[0], y='sigma2', yincrease=False, robust=True)
@@ -263,7 +264,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
                         #                    mask_edges=False).compute()
 
 
-    if plotting:
+    if plotting is True:
         layerwise_Tbar.where(hbar>0.01).mean(dim='XC').plot(y='sigma2', yincrease=False)
         plt.savefig(output_dir+'/layerwise_Tbar_sigma_space.png', dpi=200, bbox_inches='tight')
 
@@ -354,5 +355,6 @@ if __name__ == '__main__':
 
     bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/run/',
                 output_dir='sigma_space_output/',
-                Tref=-2)
+                Tref=-2,
+                plotting=True)
 
