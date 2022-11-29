@@ -131,7 +131,9 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     layerwise_merid_vol_flux = histogram(sigma2_yp1,
                               bins=[sigma2_layer_bounds],
                               dim = ['Z'],
-                              weights=meridional_volume_flux).rename({'sigma2_bin':'sigma2'})
+                              weights=meridional_volume_flux).rename(
+                                    {'sigma2_bin':'sigma2'}).rename(
+                                    'layerwise_merid_vol_flux')
 
     layerwise_merid_vol_flux.load()
 
@@ -232,7 +234,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
 
     psi_zm.load()
 
-    psi_zp = psi_bar - psi_zm
+    psi_zp = (psi_bar - psi_zm).rename('psi_zp')
 
     print('Saving psi_zm and psi_zp fields to NetCDF files')
     # save fields to NetCDF files
@@ -293,13 +295,13 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
                                               sigma2_layer_midpoints,
                                               method='linear',
                                               target_data=sigma2_yp1,
-                                           mask_edges=False)
+                                           mask_edges=False).rename('layerwise_temperature')
     layerwise_temperature.load()
 
     # can get this either by averaging T in z space and converting, or
     # by converting to layers and then averaging. Averaging in layers
     # means that isopycnal heave doesn't smear the temperature signal.
-    layerwise_Tbar = layerwise_temperature.mean(dim='time')
+    layerwise_Tbar = layerwise_temperature.mean(dim='time').rename('layerwise_Tbar')
 
                         # grid.transform(grid.interp(Tbar - Tref, 'Y', boundary='extend'),
                         #                       'Z',
@@ -308,7 +310,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
                         #                       target_data=sigma2_bar,
                         #                    mask_edges=False).compute()
 
-    Tbar = ds_state['THETA'].mean(dim='time').load()
+    Tbar = ds_state['THETA'].mean(dim='time').load().rename('Tbar')
 
     print('Saving temperature fields to NetCDF files')
     # save fields to NetCDF files
@@ -338,7 +340,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     vhc_reconstructed = layerwise_merid_vol_flux*layerwise_temperature
     vhc_reconstructed.load()
 
-    vhc_reconstructed_bar = vhc_reconstructed.mean(dim='time').compute()
+    vhc_reconstructed_bar = vhc_reconstructed.mean(dim='time').compute().rename('vhc_reconstructed_bar')
 
     print('Saving vhc_reconstructed_bar to NetCDF file')
     # save fields to NetCDF files
@@ -348,7 +350,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     Tprime = layerwise_temperature - layerwise_Tbar
 
     # eddy diffusive transport
-    vh_prime_Tprime_bar = (vh_prime*Tprime).mean(dim='time').compute()
+    vh_prime_Tprime_bar = (vh_prime*Tprime).mean(dim='time').compute().rename('vh_prime_Tprime_bar')
 
     print('Saving eddy diffusion term to NetCDF file')
     # save fields to NetCDF files
@@ -377,11 +379,15 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     layerwise_heat_advection = histogram(sigma2_yp1,
                           bins=[sigma2_layer_bounds],
                           dim = ['Z'],
-                          weights=ds_heat['ADVy_TH']).rename({'sigma2_bin':'sigma2'})
+                          weights=ds_heat['ADVy_TH']).rename(
+                                {'sigma2_bin':'sigma2'}).rename(
+                                'layerwise_heat_advection')
 
 
     vhc_bar = layerwise_heat_advection.sel(time=slice(time_range[0],
-                                                  time_range[1])).mean(dim='time').compute()
+                                            time_range[1])).mean(
+                                            dim='time').compute().rename(
+                                            'vhc_bar')
 
     print('Saving model heat advection fields to NetCDF files')
     # save fields to NetCDF files
