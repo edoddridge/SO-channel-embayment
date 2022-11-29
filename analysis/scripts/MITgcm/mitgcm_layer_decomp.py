@@ -278,6 +278,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     if plotting is True:
         layerwise_Tbar.where(hbar>0.01).mean(dim='XC').plot(y='sigma2', yincrease=False)
         plt.savefig(os.path.join(model_dir, output_dir, 'layerwise_Tbar_sigma_space.png'), dpi=200, bbox_inches='tight')
+        plt.close('all')
 
         plt.pcolormesh(X_layered_plotting, Y_layered_plotting,
                     layerwise_Tbar.where(hbar>0.01).mean(dim='XC'),
