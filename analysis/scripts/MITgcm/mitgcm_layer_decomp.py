@@ -135,6 +135,13 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
 
     layerwise_merid_vol_flux.load()
 
+    print('Saving layerwise_merid_vol_flux to NetCDF file')
+    layerwise_merid_vol_flux.to_netcdf(os.path.join(model_dir, output_dir,
+                                                    'layerwise_merid_vol_flux.nc'),
+                encoding={'layerwise_merid_vol_flux': {'shuffle': True,
+                                                        'zlib': True,
+                                                        'complevel': 5}})
+
     psi = layerwise_merid_vol_flux.mean(dim='time').compute().rename('psi')
 
     # This is the traditional way of computing the Eulerian-mean overturning
@@ -145,14 +152,33 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
                           weights=vbar*ds_state['drF']*ds_state['dxG']*
                                     ds_state['hFacS']).rename({'sigma2_bin':'sigma2'}).rename('psi_bar')
 
+    psi_bar.load()
+
     # Eddy overturning
     psi_star = psi - psi_bar
+
+    print('Saving psi, psi_bar and psi_star  fields to NetCDF files')
+    # save fields to NetCDF files
+    psi.to_netcdf(os.path.join(model_dir, output_dir, 'psi.nc'),
+                encoding={'psi': {'shuffle': True, 'zlib': True, 'complevel': 5}})
+    psi_bar.to_netcdf(os.path.join(model_dir, output_dir, 'psi_bar.nc'),
+                encoding={'psi_bar': {'shuffle': True, 'zlib': True, 'complevel': 5}})
+    psi_star.to_netcdf(os.path.join(model_dir, output_dir, 'psi_star.nc'),
+                encoding={'psi_star': {'shuffle': True, 'zlib': True, 'complevel': 5}})
+
 
     # Eulerian-mean layer thickness.
     hbar = histogram(sigma2_yp1_bar,
                           bins=[sigma2_layer_bounds],
                           dim = ['Z'],
                           weights=xr.ones_like(vbar)*ds_state['drF']).rename({'sigma2_bin':'sigma2'}).rename('hbar')
+
+    hbar.load()
+    print('Saving hbar to NetCDF file')
+    # save fields to NetCDF files
+    hbar.to_netcdf(os.path.join(model_dir, output_dir, 'hbar.nc'),
+                encoding={'hbar': {'shuffle': True, 'zlib': True, 'complevel': 5}})
+
 
     X_layered_plotting = np.tile(ds_state['YG'], (len(sigma2_layer_bounds)-1,1)).T
     Y_layered_plotting = -hbar.mean(dim=['XC']).cumsum(dim='sigma2').compute()
@@ -204,7 +230,16 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
                                                    *ds_state['hFacS']).mean(dim='XC')).rename(
                                                 {'sigma2_bin':'sigma2'}).rename('psi_zm')
 
+    psi_zm.load()
+
     psi_zp = psi_bar - psi_zm
+
+    print('Saving psi_zm and psi_zp fields to NetCDF files')
+    # save fields to NetCDF files
+    psi_zm.to_netcdf(os.path.join(model_dir, output_dir, 'psi_zm.nc'),
+                encoding={'psi_zm': {'shuffle': True, 'zlib': True, 'complevel': 5}})
+    psi_zp.to_netcdf(os.path.join(model_dir, output_dir, 'psi_zp.nc'),
+                encoding={'psi_zp': {'shuffle': True, 'zlib': True, 'complevel': 5}})
 
 
     if plotting is True:
@@ -259,8 +294,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
                                               method='linear',
                                               target_data=sigma2_yp1,
                                            mask_edges=False)
-
-    Tbar = ds_state['THETA'].mean(dim='time').load()
+    layerwise_temperature.load()
 
     # can get this either by averaging T in z space and converting, or
     # by converting to layers and then averaging. Averaging in layers
@@ -273,6 +307,18 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
                         #                       method='linear',
                         #                       target_data=sigma2_bar,
                         #                    mask_edges=False).compute()
+
+    Tbar = ds_state['THETA'].mean(dim='time').load()
+
+    print('Saving temperature fields to NetCDF files')
+    # save fields to NetCDF files
+    layerwise_temperature.to_netcdf(os.path.join(model_dir, output_dir, 'layerwise_temperature.nc'),
+                encoding={'layerwise_temperature': {'shuffle': True, 'zlib': True, 'complevel': 5}})
+    layerwise_Tbar.to_netcdf(os.path.join(model_dir, output_dir, 'layerwise_Tbar.nc'),
+                encoding={'layerwise_Tbar': {'shuffle': True, 'zlib': True, 'complevel': 5}})
+    Tbar.to_netcdf(os.path.join(model_dir, output_dir, 'Tbar.nc'),
+                encoding={'Tbar': {'shuffle': True, 'zlib': True, 'complevel': 5}})
+
 
 
     if plotting is True:
@@ -290,12 +336,24 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     print('Calculating layerwise heat transport')
     # heat transport
     vhc_reconstructed = layerwise_merid_vol_flux*layerwise_temperature
+    vhc_reconstructed.load()
+
     vhc_reconstructed_bar = vhc_reconstructed.mean(dim='time').compute()
+
+    print('Saving vhc_reconstructed_bar to NetCDF file')
+    # save fields to NetCDF files
+    vhc_reconstructed_bar.to_netcdf(os.path.join(model_dir, output_dir, 'vhc_reconstructed_bar.nc'),
+                encoding={'vhc_reconstructed_bar': {'shuffle': True, 'zlib': True, 'complevel': 5}})
 
     Tprime = layerwise_temperature - layerwise_Tbar
 
     # eddy diffusive transport
     vh_prime_Tprime_bar = (vh_prime*Tprime).mean(dim='time').compute()
+
+    print('Saving eddy diffusion term to NetCDF file')
+    # save fields to NetCDF files
+    vh_prime_Tprime_bar.to_netcdf(os.path.join(model_dir, output_dir, 'vh_prime_Tprime_bar.nc'),
+                encoding={'vh_prime_Tprime_bar': {'shuffle': True, 'zlib': True, 'complevel': 5}})
 
     # Advective heat transport
     psi_Tbar = psi*layerwise_Tbar
@@ -325,28 +383,8 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     vhc_bar = layerwise_heat_advection.sel(time=slice(time_range[0],
                                                   time_range[1])).mean(dim='time').compute()
 
-    print('Saving fields to NetCDF files')
+    print('Saving model heat advection fields to NetCDF files')
     # save fields to NetCDF files
-    layerwise_merid_vol_flux.to_netcdf(os.path.join(model_dir, output_dir, 'layerwise_merid_vol_flux.nc'),
-                encoding={'layerwise_merid_vol_flux': {'shuffle': True, 'zlib': True, 'complevel': 5}})
-    psi.to_netcdf(os.path.join(model_dir, output_dir, 'psi.nc'),
-                encoding={'psi': {'shuffle': True, 'zlib': True, 'complevel': 5}})
-    psi_bar.to_netcdf(os.path.join(model_dir, output_dir, 'psi_bar.nc'),
-                encoding={'psi_bar': {'shuffle': True, 'zlib': True, 'complevel': 5}})
-    hbar.to_netcdf(os.path.join(model_dir, output_dir, 'hbar.nc'),
-                encoding={'hbar': {'shuffle': True, 'zlib': True, 'complevel': 5}})
-    psi_zm.to_netcdf(os.path.join(model_dir, output_dir, 'psi_zm.nc'),
-                encoding={'psi_zm': {'shuffle': True, 'zlib': True, 'complevel': 5}})
-    layerwise_temperature.to_netcdf(os.path.join(model_dir, output_dir, 'layerwise_temperature.nc'),
-                encoding={'layerwise_temperature': {'shuffle': True, 'zlib': True, 'complevel': 5}})
-    Tbar.to_netcdf(os.path.join(model_dir, output_dir, 'Tbar.nc'),
-                encoding={'Tbar': {'shuffle': True, 'zlib': True, 'complevel': 5}})
-    layerwise_Tbar.to_netcdf(os.path.join(model_dir, output_dir, 'layerwise_Tbar.nc'),
-                encoding={'layerwise_Tbar': {'shuffle': True, 'zlib': True, 'complevel': 5}})
-    vhc_reconstructed_bar.to_netcdf(os.path.join(model_dir, output_dir, 'vhc_reconstructed_bar.nc'),
-                encoding={'vhc_reconstructed_bar': {'shuffle': True, 'zlib': True, 'complevel': 5}})
-    vh_prime_Tprime_bar.to_netcdf(os.path.join(model_dir, output_dir, 'vh_prime_Tprime_bar.nc'),
-                encoding={'vh_prime_Tprime_bar': {'shuffle': True, 'zlib': True, 'complevel': 5}})
     # from model output heat advection - Use to check decomposition
     layerwise_heat_advection.to_netcdf(os.path.join(model_dir, output_dir, 'layerwise_heat_advection.nc'),
                 encoding={'layerwise_heat_advection': {'shuffle': True, 'zlib': True, 'complevel': 5}})
