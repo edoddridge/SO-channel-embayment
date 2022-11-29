@@ -171,7 +171,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
         cumsum_from_bottom(psi_star.sum(dim='XC')).plot.contourf(ax=ax[2], y='sigma2', yincrease=False, robust=True, levels=levels)
         ax[2].set_title('$\Psi^{*}$')
 
-        fig.savefig(os.path.join(output_dir, 'psi_eddy_mean_sigma_space.png'), dpi=200, bbox_inches='tight')
+        fig.savefig(os.path.join(model_dir, output_dir, 'psi_eddy_mean_sigma_space.png'), dpi=200, bbox_inches='tight')
 
         # depth space
         fig, ax = plt.subplots(1,3, figsize=(15,4))
@@ -192,7 +192,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
         plt.colorbar(im3, ax=ax[2])
 
         # blue rotates counter-clockwise
-        fig.savefig(os.path.join(output_dir, 'psi_eddy_mean_depth_space.png'), dpi=200, bbox_inches='tight')
+        fig.savefig(os.path.join(model_dir, output_dir, 'psi_eddy_mean_depth_space.png'), dpi=200, bbox_inches='tight')
 
 
     # Zonal-mean and zonal perturbation streamfunctions
@@ -219,7 +219,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
         cumsum_from_bottom(psi_zp.sum(dim='XC')).plot(ax=ax[2], y='sigma2', yincrease=False, robust=True)
         ax[2].set_title('$\Psi_{zp}$ - zonal perturbation')
 
-        fig.savefig(os.path.join(output_dir, 'psi_bar_decompostion_sigma_space.png'), dpi=200, bbox_inches='tight')
+        fig.savefig(os.path.join(model_dir, output_dir, 'psi_bar_decompostion_sigma_space.png'), dpi=200, bbox_inches='tight')
 
         # depth space
         fig, ax = plt.subplots(1,3, figsize=(15,4))
@@ -240,7 +240,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
         plt.colorbar(im3, ax=ax[2])
 
         # blue rotates counter-clockwise
-        fig.savefig(os.path.join(output_dir, 'psi_bar_decompostion_depth_space.png'), dpi=200, bbox_inches='tight')
+        fig.savefig(os.path.join(model_dir, output_dir, 'psi_bar_decompostion_depth_space.png'), dpi=200, bbox_inches='tight')
 
     # volume transport
     vh_prime = (layerwise_merid_vol_flux.sel(time=slice(time_range[0], time_range[1])) - psi)
@@ -274,13 +274,13 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
 
     if plotting is True:
         layerwise_Tbar.where(hbar>0.01).mean(dim='XC').plot(y='sigma2', yincrease=False)
-        plt.savefig(os.path.join(output_dir, 'layerwise_Tbar_sigma_space.png'), dpi=200, bbox_inches='tight')
+        plt.savefig(os.path.join(model_dir, output_dir, 'layerwise_Tbar_sigma_space.png'), dpi=200, bbox_inches='tight')
 
         plt.pcolormesh(X_layered_plotting, Y_layered_plotting,
                     layerwise_Tbar.where(hbar>0.01).mean(dim='XC'),
                     cmap=cmocean.cm.thermal, vmin=-2, vmax=15)
         plt.colorbar()
-        plt.savefig(os.path.join(output_dir, 'layerwise_Tbar_depth_space.png'), dpi=200, bbox_inches='tight')
+        plt.savefig(os.path.join(model_dir, output_dir, 'layerwise_Tbar_depth_space.png'), dpi=200, bbox_inches='tight')
 
     print('Calculating layerwise heat transport')
     # heat transport
