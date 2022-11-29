@@ -210,14 +210,14 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     if plotting is True:
         # isopycnal space
         fig, ax = plt.subplots(1,3, figsize=(15,4))
-        cumsum_from_bottom(psi_bar.sum(dim='XC')).plot(ax=ax[0], y='sigma2', yincrease=False, robust=True)
+        cumsum_from_bottom(psi_bar.sum(dim='XC')).plot.contourf(ax=ax[0], y='sigma2', yincrease=False, robust=True)
         ax[0].set_title('$\overline{\Psi}$')
 
-        cumsum_from_bottom(psi_zm.sum(dim='XC')).plot(ax=ax[1], y='sigma2', yincrease=False, robust=True)
+        cumsum_from_bottom(psi_zm.sum(dim='XC')).plot.contourf(ax=ax[1], y='sigma2', yincrease=False, robust=True)
         ax[1].set_title('$\Psi_{zm}$')
 
 
-        cumsum_from_bottom(psi_zp.sum(dim='XC')).plot(ax=ax[2], y='sigma2', yincrease=False, robust=True)
+        cumsum_from_bottom(psi_zp.sum(dim='XC')).plot.contourf(ax=ax[2], y='sigma2', yincrease=False, robust=True)
         ax[2].set_title('$\Psi_{zp}$ - zonal perturbation')
 
         fig.savefig(os.path.join(model_dir, output_dir, 'psi_bar_decompostion_sigma_space.png'), dpi=200, bbox_inches='tight')
