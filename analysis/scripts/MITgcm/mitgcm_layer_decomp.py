@@ -102,7 +102,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
 
     print('Calculating density')
 
-    sigma = gsw.density.sigma1(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
+    sigma = gsw.density.sigma2(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
                             ds_state['THETA'].where(mask_TP))
     sigma.name = 'sigma'
 
