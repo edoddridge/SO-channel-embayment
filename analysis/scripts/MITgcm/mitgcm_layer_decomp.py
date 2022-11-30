@@ -118,6 +118,9 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     sigma2_layer_bounds = np.append(sigma2_layer_bounds, np.linspace(36.95, 37.1, 6, endpoint=False))
     sigma2_layer_bounds = np.append(sigma2_layer_bounds, np.linspace(37.1, 38, 10))
 
+    # if using sigma1, need to subtract 5 from these values
+    sigma2_layer_bounds = sigma2_layer_bounds - 5
+
     sigma2_layer_midpoints = (sigma2_layer_bounds[1:] + sigma2_layer_bounds[:-1])/2
 
     # define time mean vvel at constant depth
