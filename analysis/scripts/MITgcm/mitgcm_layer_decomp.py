@@ -225,12 +225,12 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
         plt.close('all')
 
     # Zonal-mean and zonal perturbation streamfunctions
-    psi_zm = xr.ones_like(psi_bar)*histogram(sigma2_yp1_bar.mean(dim='XC'),
+    psi_zm = (xr.ones_like(psi_bar)*histogram(sigma2_yp1_bar.mean(dim='XC'),
                                           bins=[sigma2_layer_bounds],
                                           dim = ['Z'],
                                           weights=(vbar*ds_state['drF']*ds_state['dxG']
                                                    *ds_state['hFacS']).mean(dim='XC')).rename(
-                                                {'sigma2_bin':'sigma2'}).rename('psi_zm')
+                                                {'sigma2_bin':'sigma2'})).rename('psi_zm')
 
     psi_zm.load()
 
