@@ -373,9 +373,71 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     # eddy overturning heat ransport
     psistar_Tbar = psi_star*layerwise_Tbar
 
+    if plotting is True:
+        # plot advective diffusive breakdown
+        fig, ax = plt.subplots(1,3, figsize=(15,4))
+        im = ax[0].pcolormesh(XL, YL, vhc_reconstructed_bar.sum(dim='XC'), cmap='RdBu_r', vmin=-3e6, vmax=3e6)
+        ax[0].set_title('Total heat transport')
+        plt.colorbar(im, ax=ax[0])
+
+        im2 = ax[1].pcolormesh(XL, YL, psi_Tbar.sum(dim='XC'), cmap='RdBu_r', vmin=-3e6, vmax=3e6)
+        ax[1].set_title('Advective heat transport')
+        plt.colorbar(im2, ax=ax[1])
+
+        (-hbar.mean(dim='XC').cumsum(dim='sigma2').sel(sigma2=36.6, method='nearest')).plot(ax=ax[2], color='k')
+        im3 = ax[2].pcolormesh(XL, YL, vh_prime_Tprime_bar.sum(dim='XC'), cmap='RdBu_r', vmin=-3e6, vmax=3e6)
+        ax[2].set_title('Diffusive heat transport')
+        plt.colorbar(im3, ax=ax[2])
+
+        fig.savefig(os.path.join(model_dir, output_dir, 'zonal_mean_heat_flux_depth_space.png'),
+            dpi=200, bbox_inches='tight')
+        plt.close('all')
+
+        # plot advection decomposition
+        fig, ax = plt.subplots(1,3, figsize=(15,4))
+
+        im = ax[0].pcolormesh(XL, YL, psi_Tbar.sum(dim='XC'), cmap='RdBu_r', vmin=-3e6, vmax=3e6)
+        ax[0].set_title('Advective heat trans.')
+        plt.colorbar(im2, ax=ax[0])
+
+        im = ax[1].pcolormesh(XL, YL, psibar_Tbar.sum(dim='XC'), cmap='RdBu_r', vmin=-3e6, vmax=3e6)
+        ax[1].set_title('Eulerian-mean adv. heat trans.')
+        plt.colorbar(im, ax=ax[1])
+
+        (-hbar.mean(dim='XC').cumsum(dim='sigma2').sel(sigma2=36.6, method='nearest')).plot(ax=ax[2], color='k')
+        im3 = ax[2].pcolormesh(XL, YL, psistar_Tbar.sum(dim='XC'), cmap='RdBu_r', vmin=-3e6, vmax=3e6)
+        ax[2].set_title('Eddy-induced adv. heat trans.')
+        plt.colorbar(im3, ax=ax[2])
+
+        fig.savefig(os.path.join(model_dir, output_dir,
+                        'zonal_mean_heat_flux_advection_decomposition_depth_space.png'),
+                    dpi=200, bbox_inches='tight')
+        plt.close('all')
+
+        # plot Eulerian-mean, zonal-mean, zonal-perturbation decompostion
+        fig, ax = plt.subplots(1,3, figsize=(15,4))
+
+        im = ax[0].pcolormesh(XL, YL, psibar_Tbar.sum(dim='XC'), cmap='RdBu_r', vmin=-3e6, vmax=3e6)
+        ax[0].set_title('Eulerian-mean adv. heat trans.')
+        plt.colorbar(im2, ax=ax[0])
+
+        im = ax[1].pcolormesh(XL, YL, psizm_Tbar.sum(dim='XC'), cmap='RdBu_r', vmin=-3e6, vmax=3e6)
+        ax[1].set_title('Zonal-mean adv. heat transport')
+        plt.colorbar(im, ax=ax[1])
+
+
+        (-hbar.mean(dim='XC').cumsum(dim='sigma2').sel(sigma2=36.6, method='nearest')).plot(ax=ax[2], color='k')
+        im3 = ax[2].pcolormesh(XL, YL, psizp_Tbar.sum(dim='XC'), cmap='RdBu_r', vmin=-3e6, vmax=3e6)
+        ax[2].set_title('Zonal Perturbation adv. heat trans.')
+        plt.colorbar(im3, ax=ax[2])
+
+        fig.savefig(os.path.join(model_dir, output_dir,
+                        'zonal_mean_and_perturbation_heat_flux_advection_decomposition_depth_space.png'),
+                    dpi=200, bbox_inches='tight')
+        plt.close('all')
 
     # using model output heat advection to test
-    # (only works if the reference temperature is set to 0°C)
+    # (only works exactly if the reference temperature is set to 0°C)
     layerwise_heat_advection = histogram(sigma2_yp1,
                           bins=[sigma2_layer_bounds],
                           dim = ['Z'],
