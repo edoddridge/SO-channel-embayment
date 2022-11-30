@@ -22,7 +22,7 @@ import logging
 logging.captureWarnings(True)
 logging.getLogger('py.warnings').setLevel(logging.ERROR)
 
-def cumsum_from_bottom (transposrts, dim='sigma2'):
+def cumsum_from_bottom (transposrts, dim='sigma'):
     cumsum= (transposrts.cumsum(dim)-transposrts.sum(dim))
     return cumsum
 
@@ -102,26 +102,27 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
 
     print('Calculating density')
 
-    sigma2 = gsw.density.sigma1(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
+    sigma = gsw.density.sigma1(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
                             ds_state['THETA'].where(mask_TP))
-    sigma2.name = 'sigma2'
+    sigma.name = 'sigma'
 
     #move to required location for interpolation
-    sigma2_yp1 = grid.interp(sigma2, 'Y', boundary='extend')
-    sigma2_yp1_zp1 = grid.interp(sigma2_yp1, 'Z', boundary='extend')#, to='outer')
+    sigma_yp1 = grid.interp(sigma, 'Y', boundary='extend')
+    sigma_yp1_zp1 = grid.interp(sigma_yp1, 'Z', boundary='extend')#, to='outer')
 
-    sigma2_yp1_bar = sigma2_yp1.sel(time=slice(time_range[0], time_range[1])).mean(dim='time').compute()
-    sigma2_yp1_zp1_bar = grid.interp(sigma2_yp1_bar, 'Z', boundary='extend', to='outer')
+    sigma_yp1_bar = sigma_yp1.sel(time=slice(time_range[0], time_range[1])).mean(dim='time').compute()
+    sigma_yp1_zp1_bar = grid.interp(sigma_yp1_bar, 'Z', boundary='extend', to='outer')
 
     # sigma layer bounds
-    sigma2_layer_bounds = np.append(np.linspace(31.5,36.8, 53, endpoint=False), np.linspace(36.8, 36.95,3, endpoint=False))
-    sigma2_layer_bounds = np.append(sigma2_layer_bounds, np.linspace(36.95, 37.1, 6, endpoint=False))
-    sigma2_layer_bounds = np.append(sigma2_layer_bounds, np.linspace(37.1, 38, 10))
+    sigma_layer_bounds = np.append(np.linspace(31.5,36.8, 53, endpoint=False), np.linspace(36.8, 36.95,3, endpoint=False))
+    sigma_layer_bounds = np.append(sigma_layer_bounds, np.linspace(36.95, 37.1, 6, endpoint=False))
+    sigma_layer_bounds = np.append(sigma_layer_bounds, np.linspace(37.1, 38, 10))
 
+    # if using sigma2, these numbers are good.
     # if using sigma1, need to subtract 5 from these values
-    sigma2_layer_bounds = sigma2_layer_bounds - 5
+    sigma_layer_bounds = sigma_layer_bounds - 5
 
-    sigma2_layer_midpoints = (sigma2_layer_bounds[1:] + sigma2_layer_bounds[:-1])/2
+    sigma_layer_midpoints = (sigma_layer_bounds[1:] + sigma_layer_bounds[:-1])/2
 
     # define time mean vvel at constant depth
     vbar = ds_state['VVEL'].sel(time=slice(time_range[0], time_range[1])).mean(dim=['time']).compute()
@@ -131,11 +132,11 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     vertical_coordinate = xr.ones_like(ds_state['VVEL'])*ds_state['drF']
 
     print('Calculating layerwise volume flux')
-    layerwise_merid_vol_flux = histogram(sigma2_yp1,
-                              bins=[sigma2_layer_bounds],
+    layerwise_merid_vol_flux = histogram(sigma_yp1,
+                              bins=[sigma_layer_bounds],
                               dim = ['Z'],
                               weights=meridional_volume_flux).rename(
-                                    {'sigma2_bin':'sigma2'}).rename(
+                                    {'sigma_bin':'sigma'}).rename(
                                     'layerwise_merid_vol_flux')
 
     layerwise_merid_vol_flux.load()
@@ -151,11 +152,11 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
 
     # This is the traditional way of computing the Eulerian-mean overturning
     # Can also be done by computing the layerwise velocity and then averaging.
-    psi_bar = histogram(sigma2_yp1_bar,
-                          bins=[sigma2_layer_bounds],
+    psi_bar = histogram(sigma_yp1_bar,
+                          bins=[sigma_layer_bounds],
                           dim = ['Z'],
                           weights=vbar*ds_state['drF']*ds_state['dxG']*
-                                    ds_state['hFacS']).rename({'sigma2_bin':'sigma2'}).rename('psi_bar')
+                                    ds_state['hFacS']).rename({'sigma_bin':'sigma'}).rename('psi_bar')
 
     psi_bar.load()
 
@@ -173,10 +174,10 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
 
 
     # Eulerian-mean layer thickness.
-    hbar = histogram(sigma2_yp1_bar,
-                          bins=[sigma2_layer_bounds],
+    hbar = histogram(sigma_yp1_bar,
+                          bins=[sigma_layer_bounds],
                           dim = ['Z'],
-                          weights=xr.ones_like(vbar)*ds_state['drF']).rename({'sigma2_bin':'sigma2'}).rename('hbar')
+                          weights=xr.ones_like(vbar)*ds_state['drF']).rename({'sigma_bin':'sigma'}).rename('hbar')
 
     hbar.load()
     print('Saving hbar to NetCDF file')
@@ -185,21 +186,21 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
                 encoding={'hbar': {'shuffle': True, 'zlib': True, 'complevel': 5}})
 
 
-    X_layered_plotting = np.tile(ds_state['YG'], (len(sigma2_layer_bounds)-1,1)).T
-    Y_layered_plotting = -hbar.mean(dim=['XC']).cumsum(dim='sigma2').compute()
+    X_layered_plotting = np.tile(ds_state['YG'], (len(sigma_layer_bounds)-1,1)).T
+    Y_layered_plotting = -hbar.mean(dim=['XC']).cumsum(dim='sigma').compute()
 
     if plotting is True:
         # isopycnal space
         fig, ax = plt.subplots(1,3, figsize=(15,4))
         levels=np.linspace(-3,3,30,)*1e6
 
-        cumsum_from_bottom(psi.sum(dim='XC')).plot.contourf(ax=ax[0], y='sigma2', yincrease=False, robust=True, levels=levels)
+        cumsum_from_bottom(psi.sum(dim='XC')).plot.contourf(ax=ax[0], y='sigma', yincrease=False, robust=True, levels=levels)
         ax[0].set_title('$\Psi$')
 
-        cumsum_from_bottom(psi_bar.sum(dim='XC')).plot.contourf(ax=ax[1], y='sigma2', yincrease=False, robust=True, levels=levels)
+        cumsum_from_bottom(psi_bar.sum(dim='XC')).plot.contourf(ax=ax[1], y='sigma', yincrease=False, robust=True, levels=levels)
         ax[1].set_title('$\overline{\Psi}$')
 
-        cumsum_from_bottom(psi_star.sum(dim='XC')).plot.contourf(ax=ax[2], y='sigma2', yincrease=False, robust=True, levels=levels)
+        cumsum_from_bottom(psi_star.sum(dim='XC')).plot.contourf(ax=ax[2], y='sigma', yincrease=False, robust=True, levels=levels)
         ax[2].set_title('$\Psi^{*}$')
 
         fig.savefig(os.path.join(model_dir, output_dir, 'psi_eddy_mean_sigma_space.png'), dpi=200, bbox_inches='tight')
@@ -228,12 +229,12 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
         plt.close('all')
 
     # Zonal-mean and zonal perturbation streamfunctions
-    psi_zm = (xr.ones_like(psi_bar)*histogram(sigma2_yp1_bar.mean(dim='XC'),
-                                          bins=[sigma2_layer_bounds],
+    psi_zm = (xr.ones_like(psi_bar)*histogram(sigma_yp1_bar.mean(dim='XC'),
+                                          bins=[sigma_layer_bounds],
                                           dim = ['Z'],
                                           weights=(vbar*ds_state['drF']*ds_state['dxG']
                                                    *ds_state['hFacS']).mean(dim='XC')).rename(
-                                                {'sigma2_bin':'sigma2'})).rename('psi_zm')
+                                                {'sigma_bin':'sigma'})).rename('psi_zm')
 
     psi_zm.load()
 
@@ -250,14 +251,14 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     if plotting is True:
         # isopycnal space
         fig, ax = plt.subplots(1,3, figsize=(15,4))
-        cumsum_from_bottom(psi_bar.sum(dim='XC')).plot.contourf(ax=ax[0], y='sigma2', yincrease=False, robust=True, levels=levels)
+        cumsum_from_bottom(psi_bar.sum(dim='XC')).plot.contourf(ax=ax[0], y='sigma', yincrease=False, robust=True, levels=levels)
         ax[0].set_title('$\overline{\Psi}$')
 
-        cumsum_from_bottom(psi_zm.sum(dim='XC')).plot.contourf(ax=ax[1], y='sigma2', yincrease=False, robust=True, levels=levels)
+        cumsum_from_bottom(psi_zm.sum(dim='XC')).plot.contourf(ax=ax[1], y='sigma', yincrease=False, robust=True, levels=levels)
         ax[1].set_title('$\Psi_{zm}$')
 
 
-        cumsum_from_bottom(psi_zp.sum(dim='XC')).plot.contourf(ax=ax[2], y='sigma2', yincrease=False, robust=True, levels=levels)
+        cumsum_from_bottom(psi_zp.sum(dim='XC')).plot.contourf(ax=ax[2], y='sigma', yincrease=False, robust=True, levels=levels)
         ax[2].set_title('$\Psi_{zp}$ - zonal perturbation')
 
         fig.savefig(os.path.join(model_dir, output_dir, 'psi_bar_decompostion_sigma_space.png'), dpi=200, bbox_inches='tight')
@@ -295,9 +296,9 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     # linear interpolation from xgcm
     layerwise_temperature = grid.transform(grid.interp(ds_state['THETA'] - Tref, 'Y', boundary='extend'),
                                               'Z',
-                                              sigma2_layer_midpoints,
+                                              sigma_layer_midpoints,
                                               method='linear',
-                                              target_data=sigma2_yp1,
+                                              target_data=sigma_yp1,
                                            mask_edges=False).rename('layerwise_temperature')
     layerwise_temperature.load()
 
@@ -308,9 +309,9 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
 
                         # grid.transform(grid.interp(Tbar - Tref, 'Y', boundary='extend'),
                         #                       'Z',
-                        #                       sigma2_layer_midpoints,
+                        #                       sigma_layer_midpoints,
                         #                       method='linear',
-                        #                       target_data=sigma2_bar,
+                        #                       target_data=sigma_bar,
                         #                    mask_edges=False).compute()
 
     Tbar = ds_state['THETA'].mean(dim='time').load().rename('Tbar')
@@ -327,7 +328,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
 
 
     if plotting is True:
-        layerwise_Tbar.where(hbar>0.01).mean(dim='XC').plot(y='sigma2', yincrease=False)
+        layerwise_Tbar.where(hbar>0.01).mean(dim='XC').plot(y='sigma', yincrease=False)
         plt.savefig(os.path.join(model_dir, output_dir, 'layerwise_Tbar_sigma_space.png'), dpi=200, bbox_inches='tight')
         plt.close('all')
 
@@ -379,16 +380,16 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     if plotting is True:
         # plot advective diffusive breakdown
         fig, ax = plt.subplots(1,3, figsize=(15,4))
-        im = ax[0].pcolormesh(XL, YL, vhc_reconstructed_bar.sum(dim='XC'), cmap='RdBu_r', vmin=-3e6, vmax=3e6)
+        im = ax[0].pcolormesh(X_layered_plotting, Y_layered_plotting, vhc_reconstructed_bar.sum(dim='XC'), cmap='RdBu_r', vmin=-3e6, vmax=3e6)
         ax[0].set_title('Total heat transport')
         plt.colorbar(im, ax=ax[0])
 
-        im2 = ax[1].pcolormesh(XL, YL, psi_Tbar.sum(dim='XC'), cmap='RdBu_r', vmin=-3e6, vmax=3e6)
+        im2 = ax[1].pcolormesh(X_layered_plotting, Y_layered_plotting, psi_Tbar.sum(dim='XC'), cmap='RdBu_r', vmin=-3e6, vmax=3e6)
         ax[1].set_title('Advective heat transport')
         plt.colorbar(im2, ax=ax[1])
 
-        (-hbar.mean(dim='XC').cumsum(dim='sigma2').sel(sigma2=36.6, method='nearest')).plot(ax=ax[2], color='k')
-        im3 = ax[2].pcolormesh(XL, YL, vh_prime_Tprime_bar.sum(dim='XC'), cmap='RdBu_r', vmin=-3e6, vmax=3e6)
+        (-hbar.mean(dim='XC').cumsum(dim='sigma').sel(sigma=36.6, method='nearest')).plot(ax=ax[2], color='k')
+        im3 = ax[2].pcolormesh(X_layered_plotting, Y_layered_plotting, vh_prime_Tprime_bar.sum(dim='XC'), cmap='RdBu_r', vmin=-3e6, vmax=3e6)
         ax[2].set_title('Diffusive heat transport')
         plt.colorbar(im3, ax=ax[2])
 
@@ -399,16 +400,16 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
         # plot advection decomposition
         fig, ax = plt.subplots(1,3, figsize=(15,4))
 
-        im = ax[0].pcolormesh(XL, YL, psi_Tbar.sum(dim='XC'), cmap='RdBu_r', vmin=-3e6, vmax=3e6)
+        im = ax[0].pcolormesh(X_layered_plotting, Y_layered_plotting, psi_Tbar.sum(dim='XC'), cmap='RdBu_r', vmin=-3e6, vmax=3e6)
         ax[0].set_title('Advective heat trans.')
         plt.colorbar(im2, ax=ax[0])
 
-        im = ax[1].pcolormesh(XL, YL, psibar_Tbar.sum(dim='XC'), cmap='RdBu_r', vmin=-3e6, vmax=3e6)
+        im = ax[1].pcolormesh(X_layered_plotting, Y_layered_plotting, psibar_Tbar.sum(dim='XC'), cmap='RdBu_r', vmin=-3e6, vmax=3e6)
         ax[1].set_title('Eulerian-mean adv. heat trans.')
         plt.colorbar(im, ax=ax[1])
 
-        (-hbar.mean(dim='XC').cumsum(dim='sigma2').sel(sigma2=36.6, method='nearest')).plot(ax=ax[2], color='k')
-        im3 = ax[2].pcolormesh(XL, YL, psistar_Tbar.sum(dim='XC'), cmap='RdBu_r', vmin=-3e6, vmax=3e6)
+        (-hbar.mean(dim='XC').cumsum(dim='sigma').sel(sigma=36.6, method='nearest')).plot(ax=ax[2], color='k')
+        im3 = ax[2].pcolormesh(X_layered_plotting, Y_layered_plotting, psistar_Tbar.sum(dim='XC'), cmap='RdBu_r', vmin=-3e6, vmax=3e6)
         ax[2].set_title('Eddy-induced adv. heat trans.')
         plt.colorbar(im3, ax=ax[2])
 
@@ -420,17 +421,17 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
         # plot Eulerian-mean, zonal-mean, zonal-perturbation decompostion
         fig, ax = plt.subplots(1,3, figsize=(15,4))
 
-        im = ax[0].pcolormesh(XL, YL, psibar_Tbar.sum(dim='XC'), cmap='RdBu_r', vmin=-3e6, vmax=3e6)
+        im = ax[0].pcolormesh(X_layered_plotting, Y_layered_plotting, psibar_Tbar.sum(dim='XC'), cmap='RdBu_r', vmin=-3e6, vmax=3e6)
         ax[0].set_title('Eulerian-mean adv. heat trans.')
         plt.colorbar(im2, ax=ax[0])
 
-        im = ax[1].pcolormesh(XL, YL, psizm_Tbar.sum(dim='XC'), cmap='RdBu_r', vmin=-3e6, vmax=3e6)
+        im = ax[1].pcolormesh(X_layered_plotting, Y_layered_plotting, psizm_Tbar.sum(dim='XC'), cmap='RdBu_r', vmin=-3e6, vmax=3e6)
         ax[1].set_title('Zonal-mean adv. heat transport')
         plt.colorbar(im, ax=ax[1])
 
 
-        (-hbar.mean(dim='XC').cumsum(dim='sigma2').sel(sigma2=36.6, method='nearest')).plot(ax=ax[2], color='k')
-        im3 = ax[2].pcolormesh(XL, YL, psizp_Tbar.sum(dim='XC'), cmap='RdBu_r', vmin=-3e6, vmax=3e6)
+        (-hbar.mean(dim='XC').cumsum(dim='sigma').sel(sigma=36.6, method='nearest')).plot(ax=ax[2], color='k')
+        im3 = ax[2].pcolormesh(X_layered_plotting, Y_layered_plotting, psizp_Tbar.sum(dim='XC'), cmap='RdBu_r', vmin=-3e6, vmax=3e6)
         ax[2].set_title('Zonal Perturbation adv. heat trans.')
         plt.colorbar(im3, ax=ax[2])
 
@@ -441,11 +442,11 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
 
     # using model output heat advection to test
     # (only works exactly if the reference temperature is set to 0°C)
-    layerwise_heat_advection = histogram(sigma2_yp1,
-                          bins=[sigma2_layer_bounds],
+    layerwise_heat_advection = histogram(sigma_yp1,
+                          bins=[sigma_layer_bounds],
                           dim = ['Z'],
                           weights=ds_heat['ADVy_TH']).rename(
-                                {'sigma2_bin':'sigma2'}).rename(
+                                {'sigma_bin':'sigma'}).rename(
                                 'layerwise_heat_advection')
 
 
