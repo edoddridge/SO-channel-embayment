@@ -157,7 +157,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     psi_bar.load()
 
     # Eddy overturning
-    psi_star = psi - psi_bar
+    psi_star = (psi - psi_bar).rename('psi_star')
 
     print('Saving psi, psi_bar and psi_star  fields to NetCDF files')
     # save fields to NetCDF files
