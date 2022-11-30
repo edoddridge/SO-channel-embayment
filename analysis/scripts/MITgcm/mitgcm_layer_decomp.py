@@ -120,7 +120,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
 
     # if using sigma2, these numbers are good.
     # if using sigma1, need to subtract 5 from these values
-    sigma_layer_bounds = sigma_layer_bounds - 5
+    # sigma_layer_bounds = sigma_layer_bounds - 5
 
     sigma_layer_midpoints = (sigma_layer_bounds[1:] + sigma_layer_bounds[:-1])/2
 
