@@ -588,6 +588,6 @@ if __name__ == '__main__':
     bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/run/',
                 output_dir='sigma_space_output/',
                 Tref=-2,
-                sigma_name=sigma,
+                sigma_name=sigma_name,
                 plotting=True)
 
