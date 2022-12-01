@@ -36,7 +36,7 @@ def load_layer_bounds(output_dir='sigma_space_output/'):
     try:
         sigma_layer_bounds = np.loadtxt(os.path.join(model_dir, output_dir,
                                                 'sigma_layer_bounds.txt'))
-    else:
+    except:
         sigma_layer_bounds = calc_layer_bounds(model_dir=model_dir,
                                 output_dir=output_dir)
     return sigma_layer_bounds
