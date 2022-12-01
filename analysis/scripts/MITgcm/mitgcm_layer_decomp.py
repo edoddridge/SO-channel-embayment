@@ -151,19 +151,19 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
 
     if sigma_name == 'sigma0':
         sigma = gsw.density.sigma0(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
-                            ds_state['THETA'].where(mask_TP))
+                            ds_state['THETA'].where(mask_TP)).rename('sigma')
         sigma_bar = sigma.mean(dim='time').compute()
         sigma_layer_bounds = load_layer_bounds(sigma, sigma_bar, output_dir)
 
     elif sigma_name == 'sigma1':
         sigma = gsw.density.sigma1(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
-                            ds_state['THETA'].where(mask_TP))
+                            ds_state['THETA'].where(mask_TP)).rename('sigma')
         sigma_bar = sigma.mean(dim='time').compute()
         sigma_layer_bounds = load_layer_bounds(sigma, sigma_bar, output_dir)
 
     elif sigma_name == 'sigma2':
         sigma = gsw.density.sigma2(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
-                            ds_state['THETA'].where(mask_TP))
+                            ds_state['THETA'].where(mask_TP)).rename('sigma')
         sigma_bar = sigma.mean(dim='time').compute()
         sigma_layer_bounds = load_layer_bounds(sigma, sigma_bar, output_dir)
 
@@ -175,21 +175,19 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
 
     elif sigma_name == 'sigma3':
         sigma = gsw.density.sigma3(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
-                            ds_state['THETA'].where(mask_TP))
+                            ds_state['THETA'].where(mask_TP)).rename('sigma')
         sigma_bar = sigma.mean(dim='time').compute()
         sigma_layer_bounds = load_layer_bounds(sigma, sigma_bar, output_dir)
 
     elif sigma_name == 'sigma4':
         sigma = gsw.density.sigma4(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
-                            ds_state['THETA'].where(mask_TP))
+                            ds_state['THETA'].where(mask_TP)).rename('sigma')
         sigma_bar = sigma.mean(dim='time').compute()
         sigma_layer_bounds = load_layer_bounds(sigma, sigma_bar, output_dir)
 
     else:
         raise ValueError('sigma option not set correctly')
         return
-
-    sigma.name = 'sigma'
 
 
     #move to required location for interpolation
