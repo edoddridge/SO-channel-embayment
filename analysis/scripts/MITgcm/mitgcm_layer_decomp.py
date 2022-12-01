@@ -26,9 +26,54 @@ def cumsum_from_bottom (transposrts, dim='sigma'):
     cumsum= (transposrts.cumsum(dim)-transposrts.sum(dim))
     return cumsum
 
+def load_layer_bounds(output_dir='sigma_space_output/'):
+    """
+    Find the layer bounds. Either load or calculate them.
+    """
+    # Always use control simulation to calculate/load layer bounds
+    model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/run/',
+
+    try:
+        sigma_layer_bounds = np.loadtxt(os.path.join(model_dir, output_dir,
+                                                'sigma_layer_bounds.txt'))
+    else:
+        sigma_layer_bounds = calc_layer_bounds(model_dir=model_dir,
+                                output_dir=output_dir)
+    return sigma_layer_bounds
+
+def calc_layer_bounds(delta_h=200,
+                    model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/run/',
+                    output_dir='sigma_space_output/'):
+    """
+    Calculate layer bounds.
+    """
+    # Array spanning depth range of the model - currently hard coded.
+    z = np.arange(-5, -3995, -delta_h)
+
+    sigma_layer_bounds = sigma_bar.sel(XC=0.4e6, method='nearest').sel(YC=3e6, method='nearest').interp(Z=z).values
+    # Capture the lower densities
+    n_layers_upper = 11
+    sigma_layer_bounds_upper = np.linspace(sigma.min().values, sigma_layer_bounds[0], n_layers_upper, endpoint=False)
+    # Capture the larger densities
+    n_layers_lower = 21
+    sigma_layer_bounds_lower = np.linspace(sigma_layer_bounds[-1] + (sigma_layer_bounds[-1] - sigma_layer_bounds[-2]),
+                                     sigma.max().values, n_layers_lower)
+
+    sigma_layer_bounds = np.concatenate((sigma_layer_bounds_upper, sigma_layer_bounds, sigma_layer_bounds_lower))
+
+    np.savetxt(os.path.join(model_dir, output_dir, 'sigma_layer_bounds.txt'),
+                sigma_layer_bounds, delimiter=',')
+
+    return sigma_layer_bounds
+
+
+###########################
+# Main function starts here
+###########################
+
 def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/run/',
                 output_dir='sigma_space_output/',
-                sigma='simga1',
+                sigma='sigma1',
                 Tref=0,
                 plotting=False):
     """
@@ -108,12 +153,20 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     if sigma == 'sigma0':
         sigma = gsw.density.sigma0(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
                             ds_state['THETA'].where(mask_TP))
+        sigma_bar = sigma.mean(dim='time').compute()
+        sigma_layer_bounds = load_layer_bounds(output_dir)
+
     elif sigma == 'sigma1':
         sigma = gsw.density.sigma1(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
                             ds_state['THETA'].where(mask_TP))
+        sigma_bar = sigma.mean(dim='time').compute()
+        sigma_layer_bounds = load_layer_bounds(output_dir)
+
     elif sigma == 'sigma2':
         sigma = gsw.density.sigma2(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
                             ds_state['THETA'].where(mask_TP))
+        sigma_bar = sigma.mean(dim='time').compute()
+        sigma_layer_bounds = load_layer_bounds(output_dir)
 
         # # original layer bounds
         # # sigma layer bounds
@@ -124,9 +177,15 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     elif sigma == 'sigma3':
         sigma = gsw.density.sigma3(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
                             ds_state['THETA'].where(mask_TP))
+        sigma_bar = sigma.mean(dim='time').compute()
+        sigma_layer_bounds = load_layer_bounds(output_dir)
+
     elif sigma == 'sigma4':
         sigma = gsw.density.sigma4(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
                             ds_state['THETA'].where(mask_TP))
+        sigma_bar = sigma.mean(dim='time').compute()
+        sigma_layer_bounds = load_layer_bounds(output_dir)
+
     else:
         raise ValueError('sigma option not set correctly')
         return
@@ -139,7 +198,6 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     sigma_xp1 = grid.interp(sigma, 'X', boundary='extend')
     # sigma_yp1_zp1 = grid.interp(sigma_yp1, 'Z', boundary='extend')#, to='outer')
 
-    sigma_bar = sigma.mean(dim='time').compute()
     sigma_yp1_bar = sigma_yp1.mean(dim='time').compute()
     sigma_xp1_bar = sigma_xp1.mean(dim='time').compute()
     # sigma_yp1_zp1_bar = grid.interp(sigma_yp1_bar, 'Z', boundary='extend', to='outer')
@@ -149,23 +207,6 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     # BUT - want to use the same layer bounds for control and perturbation runs,
     # so need to be a bit smarter than just recalculating it.
 
-    # Thickness of the density layers throughout the water column
-    delta_h = 200 #m
-    z = np.arange(-5, -3995, -delta_h)
-
-    sigma_layer_bounds = sigma_bar.sel(XC=0.4e6, method='nearest').sel(YC=3e6, method='nearest').interp(Z=z).values
-    # Capture the lower densities
-    n_layers_upper = 11
-    sigma_layer_bounds_upper = np.linspace(sigma.min().values, sigma_layer_bounds[0], n_layers_upper, endpoint=False)
-    # Capture the larger densities
-    n_layers_lower = 21
-    sigma_layer_bounds_lower = np.linspace(sigma_layer_bounds[-1] + (sigma_layer_bounds[-1] - sigma_layer_bounds[-2]),
-                                     sigma.max().values, n_layers_lower)
-
-    sigma_layer_bounds = np.concatenate((sigma_layer_bounds_upper, sigma_layer_bounds, sigma_layer_bounds_lower))
-
-    np.savetxt(os.path.join(model_dir, output_dir, 'sigma_layer_bounds.txt'),
-                sigma_layer_bounds, delimiter=',')
 
     sigma_layer_midpoints = (sigma_layer_bounds[1:] + sigma_layer_bounds[:-1])/2
 
