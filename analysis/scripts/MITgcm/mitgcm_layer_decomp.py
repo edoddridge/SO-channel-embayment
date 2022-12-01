@@ -26,7 +26,7 @@ def cumsum_from_bottom (transposrts, dim='sigma'):
     cumsum= (transposrts.cumsum(dim)-transposrts.sum(dim))
     return cumsum
 
-def load_layer_bounds(output_dir='sigma_space_output/'):
+def load_layer_bounds(sigma, sigma_bar, output_dir='sigma_space_output/'):
     """
     Find the layer bounds. Either load or calculate them.
     """
@@ -34,14 +34,13 @@ def load_layer_bounds(output_dir='sigma_space_output/'):
     model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/run/',
 
     try:
-        sigma_layer_bounds = np.loadtxt(os.path.join(model_dir, output_dir,
-                                                'sigma_layer_bounds.txt'))
-    except:
-        sigma_layer_bounds = calc_layer_bounds(model_dir=model_dir,
+        sigma_layer_bounds = np.loadtxt(os.path.join(model_dir, output_dir, 'sigma_layer_bounds.txt'))
+    except FileNotFoundError:
+        sigma_layer_bounds = calc_layer_bounds(sigma, sigma_bar, model_dir=model_dir,
                                 output_dir=output_dir)
     return sigma_layer_bounds
 
-def calc_layer_bounds(delta_h=200,
+def calc_layer_bounds(sigma, sigma_bar, delta_h=200,
                     model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/run/',
                     output_dir='sigma_space_output/'):
     """
@@ -154,19 +153,19 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
         sigma = gsw.density.sigma0(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
                             ds_state['THETA'].where(mask_TP))
         sigma_bar = sigma.mean(dim='time').compute()
-        sigma_layer_bounds = load_layer_bounds(output_dir)
+        sigma_layer_bounds = load_layer_bounds(sigma, sigma_bar, output_dir)
 
     elif sigma == 'sigma1':
         sigma = gsw.density.sigma1(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
                             ds_state['THETA'].where(mask_TP))
         sigma_bar = sigma.mean(dim='time').compute()
-        sigma_layer_bounds = load_layer_bounds(output_dir)
+        sigma_layer_bounds = load_layer_bounds(sigma, sigma_bar, output_dir)
 
     elif sigma == 'sigma2':
         sigma = gsw.density.sigma2(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
                             ds_state['THETA'].where(mask_TP))
         sigma_bar = sigma.mean(dim='time').compute()
-        sigma_layer_bounds = load_layer_bounds(output_dir)
+        sigma_layer_bounds = load_layer_bounds(sigma, sigma_bar, output_dir)
 
         # # original layer bounds
         # # sigma layer bounds
@@ -178,13 +177,13 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
         sigma = gsw.density.sigma3(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
                             ds_state['THETA'].where(mask_TP))
         sigma_bar = sigma.mean(dim='time').compute()
-        sigma_layer_bounds = load_layer_bounds(output_dir)
+        sigma_layer_bounds = load_layer_bounds(sigma, sigma_bar, output_dir)
 
     elif sigma == 'sigma4':
         sigma = gsw.density.sigma4(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
                             ds_state['THETA'].where(mask_TP))
         sigma_bar = sigma.mean(dim='time').compute()
-        sigma_layer_bounds = load_layer_bounds(output_dir)
+        sigma_layer_bounds = load_layer_bounds(sigma, sigma_bar, output_dir)
 
     else:
         raise ValueError('sigma option not set correctly')
