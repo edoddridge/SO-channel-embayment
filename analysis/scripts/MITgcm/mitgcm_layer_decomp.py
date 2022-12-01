@@ -145,7 +145,9 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     # sigma_yp1_zp1_bar = grid.interp(sigma_yp1_bar, 'Z', boundary='extend', to='outer')
 
 
-    #calculate layer bounds
+    # Code for calculating layer bounds
+    # BUT - want to use the same layer bounds for control and perturbation runs,
+    # so need to be a bit smarter than just recalculating it.
 
     # Thickness of the density layers throughout the water column
     delta_h = 200 #m
@@ -161,6 +163,9 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
                                      sigma.max().values, n_layers_lower)
 
     sigma_layer_bounds = np.concatenate((sigma_layer_bounds_upper, sigma_layer_bounds, sigma_layer_bounds_lower))
+
+    np.savetxt(os.path.join(model_dir, output_dir, 'sigma_layer_bounds.txt'),
+                sigma_layer_bounds, delimiter=',')
 
     sigma_layer_midpoints = (sigma_layer_bounds[1:] + sigma_layer_bounds[:-1])/2
 
