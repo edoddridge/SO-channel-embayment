@@ -148,7 +148,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     delta_h = 100 #m
     z = np.arange(-5, -3995, -delta_h)
 
-    sigma_bounds = sigma_yp1_bar.sel(XC=0.4e6, method='nearest').sel(YC=3e6, method='nearest').interp(Z=z).values
+    sigma_bounds = sigma_yp1_bar.sel(XC=0.4e6, method='nearest').sel(YG=3e6, method='nearest').interp(Z=z).values
     # Capture the lower densities
     n_layers_upper = 11
     sigma_bounds_upper = np.linspace(sigma.min().values, sigma_bounds[0], n_layers_upper, endpoint=False)
