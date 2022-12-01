@@ -31,7 +31,7 @@ def load_layer_bounds(sigma, sigma_bar, output_dir):
     Find the layer bounds. Either load or calculate them.
     """
     # Always use control simulation to calculate/load layer bounds
-    model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/run/',
+    model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/run/'
 
     try:
         sigma_layer_bounds = np.loadtxt(os.path.join(model_dir, output_dir, 'sigma_layer_bounds.txt'))
