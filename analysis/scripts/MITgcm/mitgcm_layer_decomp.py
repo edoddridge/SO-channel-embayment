@@ -522,13 +522,13 @@ if __name__ == '__main__':
     # This script calculates binned quantities for a single year.
         #### get year argument that was passed to python script ####
 
-    # import sys
+    import sys
 
-    # year = str(sys.argv[1])
+    sigma = str(sys.argv[1])
 
     bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/run/',
                 output_dir='sigma_space_output/',
                 Tref=-2,
-                sigma='simga1',
+                sigma=sigma,
                 plotting=True)
 
