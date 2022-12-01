@@ -28,11 +28,14 @@ def cumsum_from_bottom (transposrts, dim='sigma'):
 
 def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/run/',
                 output_dir='sigma_space_output/',
+                sigma='simga1',
                 Tref=0,
                 plotting=False):
     """
     Convert z-coordinate fields to isopycnal coordinate.
     """
+
+    output_dir = o.path.join(output_dir, sigma)
 
 
     # make sure the output_dir exists
@@ -102,9 +105,38 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
 
     print('Calculating density')
 
-    sigma = gsw.density.sigma2(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
+    if sigma == 'sigma0':
+        sigma = gsw.density.sigma0(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
                             ds_state['THETA'].where(mask_TP))
+    elif sigma == 'sigma1':
+        sigma = gsw.density.sigma1(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
+                            ds_state['THETA'].where(mask_TP))
+    elif sigma == 'sigma2':
+        sigma = gsw.density.sigma2(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
+                            ds_state['THETA'].where(mask_TP))
+
+        # original layer bounds
+        # sigma layer bounds
+        sigma_layer_bounds = np.append(np.linspace(31.5,36.8, 53, endpoint=False), np.linspace(36.8, 36.95,3, endpoint=False))
+        sigma_layer_bounds = np.append(sigma_layer_bounds, np.linspace(36.95, 37.1, 6, endpoint=False))
+        sigma_layer_bounds = np.append(sigma_layer_bounds, np.linspace(37.1, 38, 10))
+
+        # if using sigma2, these numbers are good.
+        # if using sigma1, need to subtract 5 from these values
+        # sigma_layer_bounds = sigma_layer_bounds - 5
+
+    elif sigma == 'sigma3':
+        sigma = gsw.density.sigma3(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
+                            ds_state['THETA'].where(mask_TP))
+    elif sigma == 'sigma4':
+        sigma = gsw.density.sigma4(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
+                            ds_state['THETA'].where(mask_TP))
+    else:
+        raise ValueError('sigma option not set correctly')
+        return
+
     sigma.name = 'sigma'
+
 
     #move to required location for interpolation
     sigma_yp1 = grid.interp(sigma, 'Y', boundary='extend')
@@ -113,16 +145,31 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     sigma_yp1_bar = sigma_yp1.sel(time=slice(time_range[0], time_range[1])).mean(dim='time').compute()
     sigma_yp1_zp1_bar = grid.interp(sigma_yp1_bar, 'Z', boundary='extend', to='outer')
 
-    # sigma layer bounds
-    sigma_layer_bounds = np.append(np.linspace(31.5,36.8, 53, endpoint=False), np.linspace(36.8, 36.95,3, endpoint=False))
-    sigma_layer_bounds = np.append(sigma_layer_bounds, np.linspace(36.95, 37.1, 6, endpoint=False))
-    sigma_layer_bounds = np.append(sigma_layer_bounds, np.linspace(37.1, 38, 10))
 
-    # if using sigma2, these numbers are good.
-    # if using sigma1, need to subtract 5 from these values
-    # sigma_layer_bounds = sigma_layer_bounds - 5
+    if sigma_layer_bounds:
+        pass
+    else:
+        #calculate layer bounds
+
+        # Thickness of the density layers throughout the water column
+        delta_h = 100 #m
+        z = np.arange(-5, -3995, -delta_h)
+
+        sigma_bounds = sigma_yp1_bar.sel(XC=0.4e6, method='nearest').sel(YC=3e6, method='nearest').interp(Z=z).values
+        # Capture the lower densities
+        n_layers_upper = 11
+        sigma_bounds_upper = np.linspace(sigma.min().values, sigma_bounds[0], n_layers_upper, endpoint=False)
+        # Capture the larger densities
+        n_layers_lower = 21
+        sigma_bounds_lower = np.linspace(sigma_bounds[-1] + (sigma_bounds[-1] - sigma_bounds[-2]),
+                                         sigma.max().values, n_layers_lower)
+
+        sigma_bounds = np.concatenate((sigma_bounds_upper, sigma_bounds, sigma_bounds_lower))
+
+
 
     sigma_layer_midpoints = (sigma_layer_bounds[1:] + sigma_layer_bounds[:-1])/2
+
 
     # define time mean vvel at constant depth
     vbar = ds_state['VVEL'].sel(time=slice(time_range[0], time_range[1])).mean(dim=['time']).compute()
@@ -482,5 +529,6 @@ if __name__ == '__main__':
     bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/run/',
                 output_dir='sigma_space_output/',
                 Tref=-2,
+                sigma='simga1',
                 plotting=True)
 
