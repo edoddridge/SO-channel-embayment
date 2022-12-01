@@ -148,16 +148,16 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     delta_h = 100 #m
     z = np.arange(-5, -3995, -delta_h)
 
-    sigma_bounds = sigma_yp1_bar.sel(XC=0.4e6, method='nearest').sel(YG=3e6, method='nearest').interp(Z=z).values
+    sigma_layer_bounds = sigma_yp1_bar.sel(XC=0.4e6, method='nearest').sel(YG=3e6, method='nearest').interp(Z=z).values
     # Capture the lower densities
     n_layers_upper = 11
-    sigma_bounds_upper = np.linspace(sigma.min().values, sigma_bounds[0], n_layers_upper, endpoint=False)
+    sigma_layer_bounds_upper = np.linspace(sigma.min().values, sigma_layer_bounds[0], n_layers_upper, endpoint=False)
     # Capture the larger densities
     n_layers_lower = 21
-    sigma_bounds_lower = np.linspace(sigma_bounds[-1] + (sigma_bounds[-1] - sigma_bounds[-2]),
+    sigma_layer_bounds_lower = np.linspace(sigma_layer_bounds[-1] + (sigma_layer_bounds[-1] - sigma_layer_bounds[-2]),
                                      sigma.max().values, n_layers_lower)
 
-    sigma_bounds = np.concatenate((sigma_bounds_upper, sigma_bounds, sigma_bounds_lower))
+    sigma_layer_bounds = np.concatenate((sigma_layer_bounds_upper, sigma_layer_bounds, sigma_layer_bounds_lower))
 
     sigma_layer_midpoints = (sigma_layer_bounds[1:] + sigma_layer_bounds[:-1])/2
 
