@@ -145,7 +145,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     #calculate layer bounds
 
     # Thickness of the density layers throughout the water column
-    delta_h = 100 #m
+    delta_h = 200 #m
     z = np.arange(-5, -3995, -delta_h)
 
     sigma_layer_bounds = sigma_yp1_bar.sel(XC=0.4e6, method='nearest').sel(YG=3e6, method='nearest').interp(Z=z).values
