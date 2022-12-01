@@ -35,7 +35,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     Convert z-coordinate fields to isopycnal coordinate.
     """
 
-    output_dir = o.path.join(output_dir, sigma)
+    output_dir = os.path.join(output_dir, sigma)
 
 
     # make sure the output_dir exists
