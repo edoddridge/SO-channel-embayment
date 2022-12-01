@@ -136,10 +136,13 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
 
     #move to required location for interpolation
     sigma_yp1 = grid.interp(sigma, 'Y', boundary='extend')
-    sigma_yp1_zp1 = grid.interp(sigma_yp1, 'Z', boundary='extend')#, to='outer')
+    sigma_xp1 = grid.interp(sigma, 'X', boundary='extend')
+    # sigma_yp1_zp1 = grid.interp(sigma_yp1, 'Z', boundary='extend')#, to='outer')
 
-    sigma_yp1_bar = sigma_yp1.sel(time=slice(time_range[0], time_range[1])).mean(dim='time').compute()
-    sigma_yp1_zp1_bar = grid.interp(sigma_yp1_bar, 'Z', boundary='extend', to='outer')
+    sigma_bar = sigma.mean(dim='time').compute()
+    sigma_yp1_bar = sigma_yp1.mean(dim='time').compute()
+    sigma_xp1_bar = sigma_xp1.mean(dim='time').compute()
+    # sigma_yp1_zp1_bar = grid.interp(sigma_yp1_bar, 'Z', boundary='extend', to='outer')
 
 
     #calculate layer bounds
@@ -148,7 +151,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     delta_h = 200 #m
     z = np.arange(-5, -3995, -delta_h)
 
-    sigma_layer_bounds = sigma_yp1_bar.sel(XC=0.4e6, method='nearest').sel(YG=3e6, method='nearest').interp(Z=z).values
+    sigma_layer_bounds = sigma_bar.sel(XC=0.4e6, method='nearest').sel(YC=3e6, method='nearest').interp(Z=z).values
     # Capture the lower densities
     n_layers_upper = 11
     sigma_layer_bounds_upper = np.linspace(sigma.min().values, sigma_layer_bounds[0], n_layers_upper, endpoint=False)
@@ -166,8 +169,10 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     vbar = ds_state['VVEL'].sel(time=slice(time_range[0], time_range[1])).mean(dim=['time']).compute()
 
     meridional_volume_flux = ds_state['VVEL']*ds_state['drF']*ds_state['dxG']*ds_state['hFacS']
-    heat_content = grid.interp(ds_state['THETA']*ds_state['drF']*ds_state['hFacC'], 'Y', boundary='extend')
-    vertical_coordinate = xr.ones_like(ds_state['VVEL'])*ds_state['drF']
+    zonal_volume_flux = ds_state['UVEL']*ds_state['drF']*ds_state['dyG']*ds_state['hFacW']
+
+    # heat_content = grid.interp(ds_state['THETA']*ds_state['drF']*ds_state['hFacC'], 'Y', boundary='extend')
+    # vertical_coordinate = xr.ones_like(ds_state['THETA'])*ds_state['drF']
 
     print('Calculating layerwise volume flux')
     layerwise_merid_vol_flux = histogram(sigma_yp1,
@@ -185,6 +190,24 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
                 encoding={'layerwise_merid_vol_flux': {'shuffle': True,
                                                         'zlib': True,
                                                         'complevel': 5}})
+
+    # zonal volume fluxes
+    layerwise_zonal_vol_flux = histogram(sigma_xp1,
+                              bins=[sigma_layer_bounds],
+                              dim = ['Z'],
+                              weights=zonal_volume_flux).rename(
+                                    {'sigma_bin':'sigma'}).rename(
+                                    'layerwise_zonal_vol_flux')
+
+    layerwise_zonal_vol_flux.load()
+
+    print('Saving layerwise_zonal_vol_flux to NetCDF file')
+    layerwise_zonal_vol_flux.to_netcdf(os.path.join(model_dir, output_dir,
+                                                    'layerwise_zonal_vol_flux.nc'),
+                encoding={'layerwise_zonal_vol_flux': {'shuffle': True,
+                                                        'zlib': True,
+                                                        'complevel': 5}})
+
 
     psi = layerwise_merid_vol_flux.mean(dim='time').compute().rename('psi')
 
@@ -212,10 +235,10 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
 
 
     # Eulerian-mean layer thickness.
-    hbar = histogram(sigma_yp1_bar,
+    hbar = histogram(sigma_bar,
                           bins=[sigma_layer_bounds],
                           dim = ['Z'],
-                          weights=xr.ones_like(vbar)*ds_state['drF']).rename({'sigma_bin':'sigma'}).rename('hbar')
+                          weights=xr.ones_like(sigma_bar)*ds_state['drF']).rename({'sigma_bin':'sigma'}).rename('hbar')
 
     hbar.load()
     print('Saving hbar to NetCDF file')
@@ -225,7 +248,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
 
 
     X_layered_plotting = np.tile(ds_state['YG'], (len(sigma_layer_bounds)-1,1)).T
-    Y_layered_plotting = -hbar.mean(dim=['XC']).cumsum(dim='sigma').compute()
+    Y_layered_plotting = -grid.interp(hbar.mean(dim=['XC']).cumsum(dim='sigma').compute(), 'Y', boundary='extend')
 
     if plotting is True:
         # isopycnal space
@@ -325,18 +348,18 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
         plt.close('all')
 
     # volume transport
-    vh_prime = (layerwise_merid_vol_flux.sel(time=slice(time_range[0], time_range[1])) - psi)
+    vh_prime = (layerwise_merid_vol_flux - psi)
 
     print('Calculating layerwise temperature')
     # Temperature
     # Need to use the linear transformation from xgcm for temperature, since it is not an
     # extensive property. Using xhistogram results in some weird values.
     # linear interpolation from xgcm
-    layerwise_temperature = grid.transform(grid.interp(ds_state['THETA'] - Tref, 'Y', boundary='extend'),
+    layerwise_temperature = grid.transform(ds_state['THETA'] - Tref,
                                               'Z',
                                               sigma_layer_midpoints,
                                               method='linear',
-                                              target_data=sigma_yp1,
+                                              target_data=sigma,
                                            mask_edges=False).rename('layerwise_temperature')
     layerwise_temperature.load()
 
@@ -371,7 +394,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
         plt.close('all')
 
         plt.pcolormesh(X_layered_plotting, Y_layered_plotting,
-                    layerwise_Tbar.where(hbar>0.01).mean(dim='XC'),
+                    grid.interp(layerwise_Tbar.where(hbar>0.01).mean(dim='XC'), 'Y', boundary='extend'),
                     cmap=cmocean.cm.thermal, vmin=-2, vmax=15)
         plt.colorbar()
         plt.savefig(os.path.join(model_dir, output_dir, 'layerwise_Tbar_depth_space.png'), dpi=200, bbox_inches='tight')
@@ -379,7 +402,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
 
     print('Calculating layerwise heat transport')
     # heat transport
-    vhc_reconstructed = layerwise_merid_vol_flux*layerwise_temperature
+    vhc_reconstructed = layerwise_merid_vol_flux*grid.interp(layerwise_temperature, 'Y', boundary='extend')
     vhc_reconstructed.load()
 
     vhc_reconstructed_bar = vhc_reconstructed.mean(dim='time').compute().rename('vhc_reconstructed_bar')
@@ -392,7 +415,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     Tprime = layerwise_temperature - layerwise_Tbar
 
     # eddy diffusive transport
-    vh_prime_Tprime_bar = (vh_prime*Tprime).mean(dim='time').compute().rename('vh_prime_Tprime_bar')
+    vh_prime_Tprime_bar = (vh_prime*grid.interp(Tprime, 'Y', boundary='extend')).mean(dim='time').compute().rename('vh_prime_Tprime_bar')
 
     print('Saving eddy diffusion term to NetCDF file')
     # save fields to NetCDF files
@@ -400,20 +423,20 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
                 encoding={'vh_prime_Tprime_bar': {'shuffle': True, 'zlib': True, 'complevel': 5}})
 
     # Advective heat transport
-    psi_Tbar = psi*layerwise_Tbar
+    psi_Tbar = psi*grid.interp(layerwise_Tbar, 'Y', boundary='extend')
 
     # is made up of Eulerian-mean and eddy
 
     # Eulerian-mean overturning heat transport
-    psibar_Tbar = psi_bar*layerwise_Tbar
+    psibar_Tbar = psi_bar*grid.interp(layerwise_Tbar, 'Y', boundary='extend')
         # is made up of
         # zonal-mean
-    psizm_Tbar = psi_zm*layerwise_Tbar
+    psizm_Tbar = psi_zm*grid.interp(layerwise_Tbar, 'Y', boundary='extend')
         # standing meander
-    psizp_Tbar = psi_zp*layerwise_Tbar
+    psizp_Tbar = psi_zp*grid.interp(layerwise_Tbar, 'Y', boundary='extend')
 
     # eddy overturning heat ransport
-    psistar_Tbar = psi_star*layerwise_Tbar
+    psistar_Tbar = psi_star*grid.interp(layerwise_Tbar, 'Y', boundary='extend')
 
     if plotting is True:
         # plot advective diffusive breakdown
