@@ -26,7 +26,7 @@ def cumsum_from_bottom (transposrts, dim='sigma'):
     cumsum= (transposrts.cumsum(dim)-transposrts.sum(dim))
     return cumsum
 
-def load_layer_bounds(sigma, sigma_bar, output_dir='sigma_space_output/'):
+def load_layer_bounds(sigma, sigma_bar, output_dir):
     """
     Find the layer bounds. Either load or calculate them.
     """
@@ -72,14 +72,14 @@ def calc_layer_bounds(sigma, sigma_bar, delta_h=200,
 
 def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/run/',
                 output_dir='sigma_space_output/',
-                sigma='sigma1',
+                sigma_name='sigma1',
                 Tref=0,
                 plotting=False):
     """
     Convert z-coordinate fields to isopycnal coordinate.
     """
 
-    output_dir = os.path.join(output_dir, sigma)
+    output_dir = os.path.join(output_dir, sigma_name)
 
 
     # make sure the output_dir exists
@@ -149,19 +149,19 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
 
     print('Calculating density')
 
-    if sigma == 'sigma0':
+    if sigma_name == 'sigma0':
         sigma = gsw.density.sigma0(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
                             ds_state['THETA'].where(mask_TP))
         sigma_bar = sigma.mean(dim='time').compute()
         sigma_layer_bounds = load_layer_bounds(sigma, sigma_bar, output_dir)
 
-    elif sigma == 'sigma1':
+    elif sigma_name == 'sigma1':
         sigma = gsw.density.sigma1(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
                             ds_state['THETA'].where(mask_TP))
         sigma_bar = sigma.mean(dim='time').compute()
         sigma_layer_bounds = load_layer_bounds(sigma, sigma_bar, output_dir)
 
-    elif sigma == 'sigma2':
+    elif sigma_name == 'sigma2':
         sigma = gsw.density.sigma2(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
                             ds_state['THETA'].where(mask_TP))
         sigma_bar = sigma.mean(dim='time').compute()
@@ -173,13 +173,13 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
         # sigma_layer_bounds = np.append(sigma_layer_bounds, np.linspace(36.95, 37.1, 6, endpoint=False))
         # sigma_layer_bounds = np.append(sigma_layer_bounds, np.linspace(37.1, 38, 10))
 
-    elif sigma == 'sigma3':
+    elif sigma_name == 'sigma3':
         sigma = gsw.density.sigma3(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
                             ds_state['THETA'].where(mask_TP))
         sigma_bar = sigma.mean(dim='time').compute()
         sigma_layer_bounds = load_layer_bounds(sigma, sigma_bar, output_dir)
 
-    elif sigma == 'sigma4':
+    elif sigma_name == 'sigma4':
         sigma = gsw.density.sigma4(ds_state['SALT'].where(mask_TP)*1.0047154285714286,
                             ds_state['THETA'].where(mask_TP))
         sigma_bar = sigma.mean(dim='time').compute()
@@ -583,11 +583,11 @@ if __name__ == '__main__':
 
     import sys
 
-    sigma = str(sys.argv[1])
+    sigma_name = str(sys.argv[1])
 
     bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/run/',
                 output_dir='sigma_space_output/',
                 Tref=-2,
-                sigma=sigma,
+                sigma_name=sigma,
                 plotting=True)
 
