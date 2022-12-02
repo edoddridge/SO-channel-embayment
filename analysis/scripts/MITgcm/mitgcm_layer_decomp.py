@@ -277,6 +277,17 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
                 encoding={'psi_star': {'shuffle': True, 'zlib': True, 'complevel': 5}})
 
 
+    #  layer thickness.
+    h = histogram(sigma,
+                          bins=[sigma_layer_bounds],
+                          dim = ['Z'],
+                          weights=xr.ones_like(sigma)*ds_state['drF']).rename({'sigma_bin':'sigma'}).rename('h')
+    h.load()
+    print('Saving h to NetCDF file')
+    # save fields to NetCDF files
+    hbar.to_netcdf(os.path.join(model_dir, output_dir, 'h.nc'),
+                encoding={'h': {'shuffle': True, 'zlib': True, 'complevel': 5}})
+
     # Eulerian-mean layer thickness.
     hbar = histogram(sigma_bar,
                           bins=[sigma_layer_bounds],
