@@ -285,7 +285,7 @@ def bin_fields(model_dir='/g/data/jk72/ed7737/SO-channel_embayment/simulations/r
     h.load()
     print('Saving h to NetCDF file')
     # save fields to NetCDF files
-    hbar.to_netcdf(os.path.join(model_dir, output_dir, 'h.nc'),
+    h.to_netcdf(os.path.join(model_dir, output_dir, 'h.nc'),
                 encoding={'h': {'shuffle': True, 'zlib': True, 'complevel': 5}})
 
     # Eulerian-mean layer thickness.
