@@ -23,7 +23,7 @@ logging.captureWarnings(True)
 logging.getLogger('py.warnings').setLevel(logging.ERROR)
 
 
-def calc_masks(ssh_mean, ssh_contour_level):
+def calc_masks(ssh_mean, ssh_contour_level, ds_2d):
     """
     Calculate masks for zonal and meridional transport.
     """
@@ -167,7 +167,7 @@ def cross_contour_transport(ssh_contour_levels, model_dir='/g/data/jk72/ed7737/S
     mask_list = []
 
     for contour_level in ssh_contour_levels:
-        mask_list.append(calc_masks(ssh_mean, contour_level))
+        mask_list.append(calc_masks(ssh_mean, contour_level, ds_2d))
 
     masks = xr.concat(mask_list, pd.Index(ssh_contour_levels, name='ssh_contour'))
 
