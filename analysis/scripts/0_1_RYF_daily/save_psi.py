@@ -102,7 +102,7 @@ if __name__ == '__main__':
     g = 9.81
 
     # Restrict to Southern Ocean latitudes
-    lat_range = slice(-80,-35.5)
+    lat_range = slice(-90,-35.5)
 
     #### get year argument that was passed to python script ####
     import sys

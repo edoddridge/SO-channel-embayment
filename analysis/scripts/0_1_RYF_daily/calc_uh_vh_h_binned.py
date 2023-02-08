@@ -46,9 +46,12 @@ def bin_fields(run_count, year):
     rho_0 = 1035.0
     # Note: change this range, so it matches the size of your contour arrays:
     ## FULL SO ##
-    lat_range = slice(-70,-34.99)
-    lat_range_big =  slice(-70.05,-34.90)
+    # lat_range = slice(-81.05,-34.99)
+    # lat_range_big =  slice(-81.1,-34.90)
 
+    lat_range = slice(-85,-34.99)
+    lat_range_big =  slice(-85.05,-34.90)
+    
     #load coordinates
     yt_ocean = cc.querying.getvar(expt,'yt_ocean',session,n=1)
     yt_ocean = yt_ocean.sel(yt_ocean=lat_range)
@@ -204,7 +207,7 @@ if __name__ == '__main__':
     import sys
 
     year = str(sys.argv[1])
-    month = 10
+    month = 1
 
     # for run_count in range(1,13):
     bin_fields(month, year)

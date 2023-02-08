@@ -46,8 +46,11 @@ def bin_fields(run_count, year):
     rho_0 = 1035.0
     # Note: change this range, so it matches the size of your contour arrays:
     ## FULL SO ##
-    lat_range = slice(-70,-34.99)
-    lat_range_big =  slice(-70.05,-34.90)
+    # lat_range = slice(-90,-34.99)
+    # lat_range_big =  slice(-90.0,-34.90)
+
+    lat_range = slice(-85,-34.99)
+    lat_range_big =  slice(-85.05,-34.90)
 
     #load coordinates
     yt_ocean = cc.querying.getvar(expt,'yt_ocean',session,n=1)
@@ -134,7 +137,7 @@ def bin_fields(run_count, year):
         del pot_rho_1_j, dzt_j
 
     #save monthly data
-    save_dir = 'g/data/jk72/ed7737/SO-channel_embayment/ACESS-OM2/01deg_jra55v13_ryf9091/data/'
+    save_dir = '/g/data/jk72/ed7737/SO-channel_embayment/ACESS-OM2/01deg_jra55v13_ryf9091/data/'
 
     ds_temperature_binned = xr.Dataset({'temperature_binned': temperature_binned})
     ds_temperature_binned.to_netcdf(save_dir+'temperature_binned_'+year+'-'+month+'.nc',
@@ -159,7 +162,7 @@ if __name__ == '__main__':
     import sys
 
     year = str(sys.argv[1])
-
-    for run_count in range(1,13):
-        bin_fields(run_count, year)
+    month = 1
+    # for run_count in range(1,13):
+    bin_fields(month, year)
 
