@@ -19,6 +19,6 @@ module load conda/analysis3
 cd /g/data/jk72/ed7737/SO-channel_embayment/analysis/scripts/0_1_RYF_daily
 
 # call python
-python3 calc_uh_vh_h_binned.py $year &>> output_save_psi_10_$year.txt
+python3 bin_uh_vh_h_with_xgcm.py $year &>> output_save_psi_$year.txt
 
 exit
