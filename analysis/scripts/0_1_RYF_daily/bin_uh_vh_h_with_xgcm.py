@@ -17,6 +17,7 @@ import dask.array as dsa
 from cosima_cookbook import distributed as ccd
 import climtas.nci
 from xhistogram.xarray import histogram
+import xgcm
 
 
 # Ignore warnings
